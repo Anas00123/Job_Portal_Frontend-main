@@ -99,7 +99,10 @@
         };
 
         document.addEventListener("DOMContentLoaded", loadApplications);
-
+   function getStatusBadge(status) {
+            const map = { "APPLIED": "primary", "APPROVED": "success", "REJECTED": "danger", "REVIEWED": "info", "PENDING": "warning" };
+            return `<span class="badge bg-${map[status] || "secondary"}">${status}</span>`;
+        }
         async function loadApplications() {
             try {
                 const data = await apiFetch("/api/admin/applications");
