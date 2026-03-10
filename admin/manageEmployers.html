@@ -98,7 +98,7 @@
 
         async function loadEmployers() {
             try {
-                const data = await apiFetch("/api/auth/recruiter");
+                const data = await apiFetch("/api/admin/recruiters");
 
                 document.getElementById("totalEmployers").textContent   = data.length;
                 document.getElementById("activeEmployers").textContent  = data.filter(r => r.recruiterStatus === "ACTIVE").length;
@@ -149,7 +149,7 @@
         async function changeStatus(id, status) {
             if (!confirm(`Are you sure you want to ${status === "ACTIVE" ? "activate" : "suspend"} this recruiter?`)) return;
             try {
-                await apiFetch(`/api/auth/recruiter/${id}/status?status=${status}`, { method: "PATCH" });
+                await apiFetch(`/api/admin/recruiter/${id}/status?status=${status}`, { method: "PATCH" });
                 loadEmployers();
             } catch (err) {
                 alert("Failed to update status.");

@@ -102,7 +102,7 @@
 
         async function loadApplications() {
             try {
-                const data = await apiFetch("/api/applications");
+                const data = await apiFetch("/api/admin/applications");
 
                 document.getElementById("totalApplications").textContent = data.length;
                 document.getElementById("approvedCount").textContent     = data.filter(a => a.applicationStatus === "APPROVED").length;

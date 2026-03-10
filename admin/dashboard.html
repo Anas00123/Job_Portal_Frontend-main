@@ -178,9 +178,9 @@
             showSpinner();
             try {
                 const [jobs, recruiters, applications] = await Promise.all([
-                    apiFetch("/api/jobs"),
-                    apiFetch("/api/auth/recruiter"),
-                    apiFetch("/api/applications")
+                    apiFetch("/api/admin/jobs"),
+                    apiFetch("/api/admin/recruiters"),
+                    apiFetch("/api/admin/applications")
                 ]);
 
                 document.getElementById("totalJobs").innerText         = jobs.length;
