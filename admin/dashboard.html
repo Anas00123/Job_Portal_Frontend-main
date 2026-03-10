@@ -204,12 +204,12 @@
             </div>
         </div>
     </section>
-<script src="/assets/js/api.js"></script>
+
+    <!-- api.js MUST come first -->
+    <script src="/assets/js/api.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-
-        const BASE_URL = "https://malcom-isopentyl-malvina.ngrok-free.dev";
 
         // ── Cookie helpers ──
         function getCookie(name) {
@@ -221,25 +221,7 @@
             document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
         }
 
-        function getToken() {
-            return getCookie("token") || localStorage.getItem("token");
-        }
-
-        function getAuthHeaders() {
-            return {
-                // "Authorization": "Bearer " + getToken(),
-                "Content-Type": "application/json",
-                "ngrok-skip-browser-warning": "true"
-            };
-        }
-
-        function handleUnauthorized() {
-            alert("Session expired. Please login again.");
-            logout();
-        }
-
         function logout() {
-            deleteCookie("token");
             deleteCookie("fullName");
             deleteCookie("role");
             localStorage.clear();
@@ -272,31 +254,21 @@
             });
         }
 
-        // ── Load stats by counting from existing APIs ──
+        // ── Load dashboard using apiFetch ──
         async function loadDashboard() {
             showSpinner();
             try {
-                const [jobsRes, recruitersRes, applicationsRes] = await Promise.all([
-                    fetch(`${BASE_URL}/api/jobs`,                { Credentials : "include",headers: getAuthHeaders() }),
-                    fetch(`${BASE_URL}/api/auth/recruiter`,      { Credentials : "include",headers: getAuthHeaders() }),
-                    fetch(`${BASE_URL}/api/applications`,        { Credentials : "include",headers: getAuthHeaders() }),
-                    // fetch(`${BASE_URL}`,  
-                    //            {
-                    //             Credentials : "include",  
-                    //      headers: getAuthHeaders() }),
+                const [jobs, recruiters, applications] = await Promise.all([
+                    apiFetch("/api/jobs"),
+                    apiFetch("/api/auth/recruiter"),
+                    apiFetch("/api/applications")
                 ]);
-
-                if (jobsRes.status === 401 || jobsRes.status === 403) { handleUnauthorized(); return; }
-
-                const jobs         = jobsRes.ok         ? await jobsRes.json()         : [];
-                const recruiters   = recruitersRes.ok   ? await recruitersRes.json()   : [];
-                const applications = applicationsRes.ok ? await applicationsRes.json() : [];
 
                 document.getElementById("totalJobs").innerText         = jobs.length;
                 document.getElementById("totalRecruiters").innerText   = recruiters.length;
                 document.getElementById("totalApplications").innerText = applications.length;
+                document.getElementById("totalUsers").innerText        = "--"; // update when candidates API available
 
-                // Populate recent applications table
                 const tbody = document.getElementById("applicationsTableBody");
                 if (!applications.length) {
                     tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No applications found</td></tr>`;
@@ -321,17 +293,14 @@
             }
         }
 
-        function setAdminName() {
-            const name = getCookie("fullName") || localStorage.getItem("fullName") || "Admin";
-            document.getElementById("adminName").innerText = "Welcome, " + name;
-        }
-
         function init() {
-            if (!getToken()) {
+            // Use role cookie for auth check (accessToken is HttpOnly — not readable by JS)
+            if (!getCookie("role")) {
                 window.location.href = "login.html";
                 return;
             }
-            setAdminName();
+            const name = getCookie("fullName") || "Admin";
+            document.getElementById("adminName").innerText = "Welcome, " + name;
             loadDashboard();
         }
 

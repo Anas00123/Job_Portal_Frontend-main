@@ -35,7 +35,7 @@
         <a href="candidates.html"><i class="fa fa-users me-2"></i> Candidates</a>
         <a href="applications.html"><i class="fa fa-file-alt me-2"></i> Applications</a>
         <a href="#"><i class="fa fa-cog me-2"></i> Settings</a>
-        <a href="#"><i class="fa fa-sign-out-alt me-2"></i> Logout</a>
+        <a href="#" onclick="logout()"><i class="fa fa-sign-out-alt me-2"></i> Logout</a>
     </div>
 
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
@@ -46,7 +46,7 @@
             <div class="container-fluid">
                 <button class="btn btn-dark d-lg-none" onclick="toggleSidebar()"><i class="fa fa-bars"></i></button>
                 <span class="navbar-brand mb-0 h4">Employers</span>
-                <span class="fw-semibold">Welcome, Admin</span>
+                <span class="fw-semibold" id="adminName">Welcome, Admin</span>
             </div>
         </nav>
 
@@ -101,24 +101,31 @@
     </div>
 
     <script src="/assets/js/bootstrap.js"></script>
-<script src="/assets/js/api.js"></script>s
-    <script>
-        const BASE_URL = "https://malcom-isopentyl-malvina.ngrok-free.dev";
-        const API_URL  = `${BASE_URL}/api/auth/recruiter`;  // ← fixed endpoint
+    <!-- api.js MUST come first -->
+    <script src="/assets/js/api.js"></script>
 
-        // ── Cookie helper ──
+    <script>
+
+        const statusMap = {
+            "ACTIVE":    { cls: "bg-success",           label: "Active"    },
+            "PENDING":   { cls: "bg-warning text-dark", label: "Pending"   },
+            "SUSPENDED": { cls: "bg-danger",            label: "Suspended" }
+        };
+
         function getCookie(name) {
             const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
             return match ? match[2] : null;
         }
 
-        function getAuthHeaders() {
-            const token = getCookie("token") || localStorage.getItem("token"); // ← cookie first
-            return {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + token,
-                "ngrok-skip-browser-warning": "true"  // ← ngrok fix
-            };
+        function deleteCookie(name) {
+            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+        }
+
+        function logout() {
+            deleteCookie("fullName");
+            deleteCookie("role");
+            localStorage.clear();
+            window.location.href = "login.html";
         }
 
         function toggleSidebar() {
@@ -126,106 +133,99 @@
             document.getElementById("overlay").classList.toggle("active");
         }
 
-        document.addEventListener("DOMContentLoaded", loadEmployers);
-
-        function loadEmployers() {
-            fetch(API_URL, { headers: getAuthHeaders() })
-                .then(res => {
-                    if (res.status === 403) throw new Error("403: Not authorized. Please log in again.");
-                    if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-                    return res.json();
-                })
-                .then(data => {
-                    document.getElementById("totalEmployers").textContent   = data.length;
-                    document.getElementById("activeEmployers").textContent  = data.filter(r => r.recruiterStatus === "ACTIVE").length;
-                    document.getElementById("blockedEmployers").textContent = data.filter(r =>
-                        r.recruiterStatus === "PENDING" || r.recruiterStatus === "SUSPENDED").length;
-
-                    const tbody = document.getElementById("employerTableBody");
-                    tbody.innerHTML = "";
-
-                    if (data.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="8" class="text-center">No employers found.</td></tr>`;
-                        return;
-                    }
-
-                    const statusMap = {
-                        "ACTIVE":    { cls: "bg-success",           label: "Active"    },
-                        "PENDING":   { cls: "bg-warning text-dark", label: "Pending"   },
-                        "SUSPENDED": { cls: "bg-danger",            label: "Suspended" }
-                    };
-
-                    data.forEach((recruiter, index) => {
-                        const badge = statusMap[recruiter.recruiterStatus] || { cls: "bg-secondary", label: recruiter.recruiterStatus };
-                        const date  = recruiter.registeredAt
-                            ? new Date(recruiter.registeredAt).toLocaleDateString("en-IN")
-                            : "N/A";
-
-                        tbody.innerHTML += `
-                            <tr>
-                                <td>${index + 1}</td>
-                                <td>${recruiter.fullName    ?? "N/A"}</td>
-                                <td>${recruiter.companyName ?? "N/A"}</td>
-                                <td>${recruiter.email       ?? "N/A"}</td>
-                                <td>${recruiter.city        ?? "N/A"}</td>
-                                <td><span class="badge ${badge.cls}">${badge.label}</span></td>
-                                <td>${date}</td>
-                                <td>
-                                    <button class="btn btn-sm btn-success"
-                                        onclick="changeStatus(${recruiter.recruiterId}, 'ACTIVE')"
-                                        ${recruiter.recruiterStatus === 'ACTIVE' ? 'disabled' : ''}>
-                                        Active
-                                    </button>
-                                    <button class="btn btn-sm btn-warning"
-                                        onclick="changeStatus(${recruiter.recruiterId}, 'SUSPENDED')"
-                                        ${recruiter.recruiterStatus === 'SUSPENDED' ? 'disabled' : ''}>
-                                        Suspend
-                                    </button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteEmployer(${recruiter.recruiterId})">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                })
-                .catch(err => {
-                    console.error("Failed to load employers:", err);
-                    document.getElementById("employerTableBody").innerHTML =
-                        `<tr><td colspan="8" class="text-center text-danger">Failed to load employers. Check console.</td></tr>`;
-                });
+        // ── Auth check ──
+        if (!getCookie("role")) {
+            window.location.href = "login.html";
         }
 
-        function changeStatus(id, status) {
+        document.getElementById("adminName").innerText =
+            "Welcome, " + (getCookie("fullName") || "Admin");
+
+        document.addEventListener("DOMContentLoaded", loadEmployers);
+
+        async function loadEmployers() {
+            try {
+                const data = await apiFetch("/api/auth/recruiter");
+
+                document.getElementById("totalEmployers").textContent   = data.length;
+                document.getElementById("activeEmployers").textContent  = data.filter(r => r.recruiterStatus === "ACTIVE").length;
+                document.getElementById("blockedEmployers").textContent = data.filter(r =>
+                    r.recruiterStatus === "PENDING" || r.recruiterStatus === "SUSPENDED").length;
+
+                const tbody = document.getElementById("employerTableBody");
+                tbody.innerHTML = "";
+
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="text-center">No employers found.</td></tr>`;
+                    return;
+                }
+
+                data.forEach((recruiter, index) => {
+                    const badge = statusMap[recruiter.recruiterStatus] || { cls: "bg-secondary", label: recruiter.recruiterStatus };
+                    const date  = recruiter.registeredAt
+                        ? new Date(recruiter.registeredAt).toLocaleDateString("en-IN")
+                        : "N/A";
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${recruiter.fullName    ?? "N/A"}</td>
+                            <td>${recruiter.companyName ?? "N/A"}</td>
+                            <td>${recruiter.email       ?? "N/A"}</td>
+                            <td>${recruiter.city        ?? "N/A"}</td>
+                            <td><span class="badge ${badge.cls}">${badge.label}</span></td>
+                            <td>${date}</td>
+                            <td>
+                                <button class="btn btn-sm btn-success"
+                                    onclick="changeStatus(${recruiter.recruiterId}, 'ACTIVE')"
+                                    ${recruiter.recruiterStatus === 'ACTIVE' ? 'disabled' : ''}>
+                                    Active
+                                </button>
+                                <button class="btn btn-sm btn-warning"
+                                    onclick="changeStatus(${recruiter.recruiterId}, 'SUSPENDED')"
+                                    ${recruiter.recruiterStatus === 'SUSPENDED' ? 'disabled' : ''}>
+                                    Suspend
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteEmployer(${recruiter.recruiterId})">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+            } catch (err) {
+                console.error("Failed to load employers:", err);
+                document.getElementById("employerTableBody").innerHTML =
+                    `<tr><td colspan="8" class="text-center text-danger">Failed to load employers. Check console.</td></tr>`;
+            }
+        }
+
+        async function changeStatus(id, status) {
             const label = status === "ACTIVE" ? "activate" : "suspend";
             if (!confirm(`Are you sure you want to ${label} this recruiter?`)) return;
 
-            fetch(`${API_URL}/${id}/status?status=${status}`, {
-                method: "PATCH",
-                headers: getAuthHeaders()
-            })
-            .then(res => {
-                if (!res.ok) throw new Error(`Status update failed: ${res.status}`);
+            try {
+                await apiFetch(`/api/auth/recruiter/${id}/status?status=${status}`, { method: "PATCH" });
                 loadEmployers();
-            })
-            .catch(err => {
+            } catch (err) {
                 console.error("Status update error:", err);
                 alert("Failed to update status. Check console.");
-            });
+            }
         }
 
-        function deleteEmployer(id) {
+        async function deleteEmployer(id) {
             if (!confirm("Are you sure you want to delete this employer?")) return;
-            fetch(`${API_URL}/${id}`, { method: "DELETE", headers: getAuthHeaders() })
-                .then(res => {
-                    if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
-                    loadEmployers();
-                })
-                .catch(err => {
-                    console.error("Delete error:", err);
-                    alert("Failed to delete. Check console.");
-                });
+
+            try {
+                await apiFetch(`/api/auth/recruiter/${id}`, { method: "DELETE" });
+                loadEmployers();
+            } catch (err) {
+                console.error("Delete error:", err);
+                alert("Failed to delete. Check console.");
+            }
         }
+
     </script>
 
 </body>
