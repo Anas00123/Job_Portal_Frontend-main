@@ -12,78 +12,25 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
     <style>
-        body {
-            margin: 0;
-            background-color: #f4f6f9;
-            overflow-x: hidden;
-        }
-
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: -250px;
-            width: 250px;
-            height: 100vh;
-            background: #0b2239;
-            color: #fff;
-            padding-top: 20px;
-            transition: 0.3s;
-            z-index: 1000;
-        }
-
+        body { margin: 0; background-color: #f4f6f9; overflow-x: hidden; }
+        .sidebar { position: fixed; top: 0; left: -250px; width: 250px; height: 100vh; background: #0b2239; color: #fff; padding-top: 20px; transition: 0.3s; z-index: 1000; }
         .sidebar.active { left: 0; }
         .sidebar h4 { text-align: center; margin-bottom: 30px; }
-
-        .sidebar a {
-            color: #cfd8dc;
-            padding: 12px 20px;
-            display: block;
-            text-decoration: none;
-        }
-
-        .sidebar a:hover,
-        .sidebar a.active {
-            background: #133b5c;
-            color: #fff;
-        }
-
-        .overlay {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            top: 0; left: 0;
-            display: none;
-            z-index: 999;
-        }
-
+        .sidebar a { color: #cfd8dc; padding: 12px 20px; display: block; text-decoration: none; }
+        .sidebar a:hover, .sidebar a.active { background: #133b5c; color: #fff; }
+        .overlay { position: fixed; width: 100%; height: 100%; background: rgba(0,0,0,0.4); top: 0; left: 0; display: none; z-index: 999; }
         .overlay.active { display: block; }
-
-        .main-content {
-            margin-left: 0;
-            padding: 20px;
-            transition: 0.3s;
-        }
-
-        @media(min-width: 992px) {
-            .sidebar { left: 0; }
-            .main-content { margin-left: 250px; }
-        }
-
-        .card {
-            border-radius: 12px;
-            box-shadow: 0 0 12px rgba(0, 0, 0, 0.06);
-        }
+        .main-content { margin-left: 0; padding: 20px; transition: 0.3s; }
+        @media(min-width: 992px) { .sidebar { left: 0; } .main-content { margin-left: 250px; } }
+        .card { border-radius: 12px; box-shadow: 0 0 12px rgba(0,0,0,0.06); }
     </style>
 </head>
 
 <body>
 
-    <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <h4>Admin Panel</h4>
         <a href="dashboard.html"><i class="fa fa-chart-line me-2"></i> Dashboard</a>
-        <!-- <a href="manageJobs.html"><i class="fa fa-briefcase me-2"></i> Manage Jobs</a> -->
         <a href="manageEmployers.html" class="active"><i class="fa fa-building me-2"></i> Employers</a>
         <a href="candidates.html"><i class="fa fa-users me-2"></i> Candidates</a>
         <a href="applications.html"><i class="fa fa-file-alt me-2"></i> Applications</a>
@@ -91,24 +38,18 @@
         <a href="#"><i class="fa fa-sign-out-alt me-2"></i> Logout</a>
     </div>
 
-    <!-- Overlay -->
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-    <!-- Main Content -->
     <div class="main-content">
 
-        <!-- Top Navbar -->
         <nav class="navbar navbar-light bg-white shadow-sm mb-4 rounded">
             <div class="container-fluid">
-                <button class="btn btn-dark d-lg-none" onclick="toggleSidebar()">
-                    <i class="fa fa-bars"></i>
-                </button>
+                <button class="btn btn-dark d-lg-none" onclick="toggleSidebar()"><i class="fa fa-bars"></i></button>
                 <span class="navbar-brand mb-0 h4">Employers</span>
                 <span class="fw-semibold">Welcome, Admin</span>
             </div>
         </nav>
 
-        <!-- Stats -->
         <div class="row g-4 mb-4">
             <div class="col-md-4 col-sm-6">
                 <div class="card p-3">
@@ -130,15 +71,7 @@
             </div>
         </div>
 
-        <!-- Employers Table -->
         <div class="card p-4">
-            <!-- <div class="d-flex justify-content-between mb-3">
-                <h5>All Employers</h5>
-                <button class="btn btn-teal btn-sm">
-                    <i class="fa fa-plus"></i> Add Employer
-                </button>
-            </div> -->
-
             <div class="table-responsive">
                 <table class="table align-middle">
                     <thead class="table-light">
@@ -168,16 +101,23 @@
     </div>
 
     <script src="/assets/js/bootstrap.js"></script>
-    <script src="/assets/js/script.js"></script>
 
     <script>
-        const API_URL = "http://localhost:8080/api/auth/recruiter";
+        const BASE_URL = "https://malcom-isopentyl-malvina.ngrok-free.dev";
+        const API_URL  = `${BASE_URL}/api/auth/recruiter`;  // ← fixed endpoint
+
+        // ── Cookie helper ──
+        function getCookie(name) {
+            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            return match ? match[2] : null;
+        }
 
         function getAuthHeaders() {
-            const token = localStorage.getItem("token");
+            const token = getCookie("token") || localStorage.getItem("token"); // ← cookie first
             return {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + token
+                "Authorization": "Bearer " + token,
+                "ngrok-skip-browser-warning": "true"  // ← ngrok fix
             };
         }
 
@@ -196,9 +136,8 @@
                     return res.json();
                 })
                 .then(data => {
-                    // Update stat cards
-                    document.getElementById("totalEmployers").textContent  = data.length;
-                    document.getElementById("activeEmployers").textContent = data.filter(r => r.recruiterStatus === "ACTIVE").length;
+                    document.getElementById("totalEmployers").textContent   = data.length;
+                    document.getElementById("activeEmployers").textContent  = data.filter(r => r.recruiterStatus === "ACTIVE").length;
                     document.getElementById("blockedEmployers").textContent = data.filter(r =>
                         r.recruiterStatus === "PENDING" || r.recruiterStatus === "SUSPENDED").length;
 
@@ -211,9 +150,9 @@
                     }
 
                     const statusMap = {
-                        "ACTIVE":    { cls: "bg-success",            label: "Active"    },
-                        "PENDING":   { cls: "bg-warning text-dark",  label: "Pending"   },
-                        "SUSPENDED": { cls: "bg-danger",             label: "Suspended" }
+                        "ACTIVE":    { cls: "bg-success",           label: "Active"    },
+                        "PENDING":   { cls: "bg-warning text-dark", label: "Pending"   },
+                        "SUSPENDED": { cls: "bg-danger",            label: "Suspended" }
                     };
 
                     data.forEach((recruiter, index) => {
@@ -232,7 +171,7 @@
                                 <td><span class="badge ${badge.cls}">${badge.label}</span></td>
                                 <td>${date}</td>
                                 <td>
-                                    <button class="btn btn-sm btn-success" 
+                                    <button class="btn btn-sm btn-success"
                                         onclick="changeStatus(${recruiter.recruiterId}, 'ACTIVE')"
                                         ${recruiter.recruiterStatus === 'ACTIVE' ? 'disabled' : ''}>
                                         Active
@@ -286,10 +225,6 @@
                     console.error("Delete error:", err);
                     alert("Failed to delete. Check console.");
                 });
-        }
-
-        function editEmployer(id) {
-            alert("Edit employer ID: " + id); // replace with modal later
         }
     </script>
 
