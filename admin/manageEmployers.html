@@ -116,7 +116,7 @@
                 data.forEach((recruiter, index) => {
                     const badge = statusMap[recruiter.recruiterStatus] || { cls: "bg-secondary", label: recruiter.recruiterStatus };
                     const date  = recruiter.registeredAt ? new Date(recruiter.registeredAt).toLocaleDateString("en-IN") : "N/A";
-                    tbody.innerHTML += `
+                    tbody.innerHTML += `    
                         <tr>
                             <td>${index + 1}</td>
                             <td>${recruiter.fullName    ?? "N/A"}</td>
@@ -147,19 +147,29 @@
         }
 
         async function changeStatus(id, status) {
-            if (!confirm(`Are you sure you want to ${status === "ACTIVE" ? "activate" : "suspend"} this recruiter?`)) return;
-            try {
-                await apiFetch(`/api/admin/recruiter/${id}/status?status=${status}`, { method: "PATCH" });
-                loadEmployers();
-            } catch (err) {
-                alert("Failed to update status.");
-            }
+    if (!confirm(`Are you sure you want to ${status === "ACTIVE" ? "activate" : "suspend"} this recruiter?`)) return;
+    try {
+        if (status === "ACTIVE") {
+            await apiFetch(`/api/admin/recruiters/${id}/activate`, { 
+                method: "PATCH", 
+                body: { reason: "Admin action" }
+            });
+        } else {
+            await apiFetch(`/api/admin/recruiters/${id}/suspend`, { 
+                method: "PATCH", 
+                body: { reason: "Admin action" }
+            });
         }
+        loadEmployers();
+    } catch (err) {
+        alert("Failed to update status.");
+    }
+}
 
         async function deleteEmployer(id) {
             if (!confirm("Are you sure you want to delete this employer?")) return;
             try {
-                await apiFetch(`/api/auth/recruiter/${id}`, { method: "DELETE" });
+                await apiFetch(`/api/admin/recruiters/${id}`, { method: "DELETE" });
                 loadEmployers();
             } catch (err) {
                 alert("Failed to delete employer.");
