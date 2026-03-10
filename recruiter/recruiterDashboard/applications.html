@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Applications | Recruiter Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap -->
+    <link href="/assets/css/bootstrap.css" rel="stylesheet">
+    <link href="/assets/css/style.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f4f7fb;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            padding: 30px;
+        }
+
+        .top-bar {
+            background: #ffffff;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+
+        
+        .card-dashboard {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .stat-card h6 {
+            font-size: 13px;
+            color: #6c757d;
+        }
+
+        .stat-card h4 {
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .table thead {
+            background: #0d6efd;
+            color: white;
+        }
+
+        .status-badge {
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-shortlisted {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .action-btn i {
+            font-size: 14px;
+        }
+
+        .filter-box {
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Sidebar -->
+<div id="recruiter-sidebar"></div>
+
+<div class="main-content">
+
+    <!-- Header -->
+    <div class="top-bar d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="page-title mb-0">Applications</h4>
+            <small class="text-muted">Dashboard / Jobs / Applications</small>
+        </div>
+        <button class="btn btn-outline-teal">
+            <i class="bi bi-briefcase me-1"></i> View Jobs
+        </button>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row mb-4">
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <h6>Total Applications</h6>
+                <h4 class="text-primary">56</h4>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <h6>Pending</h6>
+                <h4 class="text-warning">20</h4>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <h6>Shortlisted</h6>
+                <h4 class="text-success">25</h4>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <h6>Rejected</h6>
+                <h4 class="text-danger">11</h4>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-box mb-4">
+        <div class="row g-3">
+
+            <div class="col-md-4">
+                <input type="text" class="form-control" placeholder="Search candidate...">
+            </div>
+
+            <div class="col-md-3">
+                <select class="form-select">
+                    <option selected>All Jobs</option>
+                    <option>Java Backend Developer</option>
+                    <option>Frontend Developer</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <select class="form-select">
+                    <option selected>All Status</option>
+                    <option>Pending</option>
+                    <option>Shortlisted</option>
+                    <option>Rejected</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <button class="btn btn-teal w-100">
+                    <i class="bi bi-funnel"></i> Filter
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Applications Table -->
+    <div class="card-dashboard">
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+
+                <thead>
+                    <tr>
+                        <th>Candidate</th>
+                        <th>Job Title</th>
+                        <th>Experience</th>
+                        <th>Applied On</th>
+                        <th>Status</th>
+                        <th width="150">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td>Aman Sharma</td>
+                        <td>Java Backend Developer</td>
+                        <td>4 Years</td>
+                        <td>25 Feb 2026</td>
+                        <td>
+                            <span class="status-badge status-pending">Pending</span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary action-btn">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-success action-btn">
+                                <i class="bi bi-check-circle"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger action-btn">
+                                <i class="bi bi-x-circle"></i>
+                            </button>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Riya Verma</td>
+                        <td>Frontend Developer</td>
+                        <td>3 Years</td>
+                        <td>24 Feb 2026</td>
+                        <td>
+                            <span class="status-badge status-shortlisted">Shortlisted</span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary action-btn">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger action-btn">
+                                <i class="bi bi-x-circle"></i>
+                            </button>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Mohit Singh</td>
+                        <td>HR Executive</td>
+                        <td>2 Years</td>
+                        <td>23 Feb 2026</td>
+                        <td>
+                            <span class="status-badge status-rejected">Rejected</span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary action-btn">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="/assets/js/recruiterDashboard/recruiterSidebar.js"></script>
+
+</body>
+</html>

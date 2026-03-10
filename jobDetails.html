@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Details - JobsHunt</title>
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+
+    <link rel="stylesheet" href="/assets/css/bootstrap.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="icon" type="image/png" href="/assets/images/tab-logo1.png">
+
+    <style>
+        /* Job Header */
+
+        .job-header {
+            background: #0b2239;
+            color: white;
+            padding: 40px 30px;
+            border-radius: 10px;
+        }
+
+        .job-header h3 {
+            font-weight: 600;
+        }
+
+        /* Job Card */
+
+        .job-card {
+            background: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        /* Apply Button */
+
+        .apply-btn {
+            background: #1bb39a;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+
+        .apply-btn:hover {
+            background: #159a85;
+        }
+
+        /* Sidebar */
+
+        .sidebar-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        /* Mobile spacing */
+
+        @media(max-width:768px) {
+
+            .job-header {
+                text-align: center;
+            }
+
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- ----------------------Header Starts----------------------------------- -->
+    <section class="position-sticky  fixed-top  bg-grey-color shadow-sm rounded">
+        <div id="header"></div>
+    </section>
+    <!-- ----------------------Header Ends----------------------------------- -->
+
+    <div class="container mt-4">
+
+        <!-- Job Header -->
+
+        <div class="job-header mb-4">
+
+            <div class="row align-items-center">
+
+                <div class="col-md-8">
+
+                    <h3>Java Backend Developer</h3>
+
+                    <p class="mb-1">
+                        <i class="bi bi-building"></i> Infosys
+                    </p>
+
+                    <p>
+                        <i class="bi bi-geo-alt"></i> Bangalore, India
+                    </p>
+
+                </div>
+
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+
+                    <h5>₹5 - 10 LPA</h5>
+                    <button class="apply-btn mt-2">Apply Now</button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="row">
+
+            <!-- Left Section -->
+
+            <div class="col-lg-8">
+
+                <div class="job-card">
+
+                    <h5>Job Description</h5>
+
+                    <p>
+                        We are looking for a skilled Java Backend Developer with experience in
+                        Spring Boot, REST API development, and database management. The
+                        candidate will work with cross-functional teams to build scalable
+                        backend systems.
+                    </p>
+
+                    <h5 class="mt-4">Responsibilities</h5>
+
+                    <ul>
+
+                        <li>Develop backend APIs using Java and Spring Boot</li>
+                        <li>Design scalable RESTful services</li>
+                        <li>Collaborate with frontend developers</li>
+                        <li>Write clean and maintainable code</li>
+
+                    </ul>
+
+                    <h5 class="mt-4">Requirements</h5>
+
+                    <ul>
+
+                        <li>Strong knowledge of Java</li>
+                        <li>Experience with Spring Boot</li>
+                        <li>Understanding of REST APIs</li>
+                        <li>Knowledge of MySQL or PostgreSQL</li>
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+
+            <!-- Sidebar -->
+
+            <div class="col-lg-4">
+
+                <div class="sidebar-card">
+
+                    <h6>Job Overview</h6>
+
+                    <hr>
+
+                    <p><strong>Job Title:</strong> Java Backend Developer</p>
+
+                    <p><strong>Experience:</strong> 2 - 4 Years</p>
+
+                    <p><strong>Salary:</strong> ₹5 - 10 LPA</p>
+
+                    <p><strong>Location:</strong> Bangalore</p>
+
+                    <p><strong>Job Type:</strong> Full Time</p>
+
+                    <p><strong>Posted:</strong> 2 Days Ago</p>
+
+                    <button class="apply-btn w-100 mt-2">Apply Now</button>
+
+                </div>
+
+
+                <div class="sidebar-card">
+
+                    <h6>Company Information</h6>
+
+                    <hr>
+
+                    <p>
+                        Infosys is a global leader in next-generation digital services and
+                        consulting. The company helps clients in more than 50 countries to
+                        navigate their digital transformation.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ---------Footer Page starts------------- -->
+    <div id="footer"></div>
+    <!-- ---------Footer Page ends------------- -->
+
+    <script src="/assets/js/bootstrap.js"></script>
+    <script src="/assets/js/script.js"></script>
+
+</body>
+
+</html>
