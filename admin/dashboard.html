@@ -277,9 +277,9 @@
             showSpinner();
             try {
                 const [jobsRes, recruitersRes, applicationsRes] = await Promise.all([
-                    fetch(`${BASE_URL}/api/jobs`,                { headers: getAuthHeaders() }),
-                    fetch(`${BASE_URL}/api/auth/recruiter`,      { headers: getAuthHeaders() }),
-                    fetch(`${BASE_URL}/api/applications`,        { headers: getAuthHeaders() })
+                    fetch(`${BASE_URL}/api/jobs`,                { Credentials : "include",headers: getAuthHeaders() }),
+                    fetch(`${BASE_URL}/api/auth/recruiter`,      { Credentials : "include",headers: getAuthHeaders() }),
+                    fetch(`${BASE_URL}/api/applications`,        { Credentials : "include",headers: getAuthHeaders() }),
                     // fetch(`${BASE_URL}`,  
                     //            {
                     //             Credentials : "include",  
