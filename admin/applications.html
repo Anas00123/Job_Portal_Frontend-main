@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>Applications - Admin Panel</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/bootstrap.css">
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="icon" type="image/png" href="/assets/images/tab-logo1.png">
-
     <style>
         body { margin: 0; background-color: #f4f6f9; overflow-x: hidden; }
         .sidebar { position: fixed; top: 0; left: -250px; width: 250px; height: 100vh; background: #0b2239; color: #fff; padding-top: 20px; transition: 0.3s; z-index: 1000; }
@@ -25,7 +22,6 @@
         .card { border-radius: 12px; box-shadow: 0 0 12px rgba(0,0,0,0.06); }
     </style>
 </head>
-
 <body>
 
     <div class="sidebar" id="sidebar">
@@ -35,39 +31,29 @@
         <a href="candidates.html"><i class="fa fa-users me-2"></i> Candidates</a>
         <a href="applications.html" class="active"><i class="fa fa-file-alt me-2"></i> Applications</a>
         <a href="#"><i class="fa fa-cog me-2"></i> Settings</a>
-        <a href="#"><i class="fa fa-sign-out-alt me-2"></i> Logout</a>
+        <a href="#" onclick="logout()"><i class="fa fa-sign-out-alt me-2"></i> Logout</a>
     </div>
 
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
     <div class="main-content">
-
         <nav class="navbar navbar-light bg-white shadow-sm mb-4 rounded">
             <div class="container-fluid">
                 <button class="btn btn-dark d-lg-none" onclick="toggleSidebar()"><i class="fa fa-bars"></i></button>
                 <span class="navbar-brand mb-0 h4">Applications</span>
-                <span class="fw-semibold">Welcome, Admin</span>
+                <span class="fw-semibold" id="adminName">Welcome, Admin</span>
             </div>
         </nav>
 
         <div class="row g-4 mb-4">
             <div class="col-md-4 col-sm-6">
-                <div class="card p-3">
-                    <h6>Total Applications</h6>
-                    <h3 id="totalApplications">—</h3>
-                </div>
+                <div class="card p-3"><h6>Total Applications</h6><h3 id="totalApplications">—</h3></div>
             </div>
             <div class="col-md-4 col-sm-6">
-                <div class="card p-3">
-                    <h6>Approved</h6>
-                    <h3 id="approvedCount">—</h3>
-                </div>
+                <div class="card p-3"><h6>Approved</h6><h3 id="approvedCount">—</h3></div>
             </div>
             <div class="col-md-4 col-sm-12">
-                <div class="card p-3">
-                    <h6>Pending</h6>
-                    <h3 id="pendingCount">—</h3>
-                </div>
+                <div class="card p-3"><h6>Pending</h6><h3 id="pendingCount">—</h3></div>
             </div>
         </div>
 
@@ -80,32 +66,27 @@
                 <table class="table align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th>#</th>
-                            <th>Candidate</th>
-                            <th>Job Title</th>
-                            <th>Employer</th>
-                            <th>Status</th>
-                            <th>Date Applied</th>
+                            <th>#</th><th>Candidate</th><th>Job Title</th>
+                            <th>Employer</th><th>Status</th><th>Date Applied</th>
                         </tr>
                     </thead>
                     <tbody id="applicationTableBody">
-                        <tr>
-                            <td colspan="6" class="text-center py-4">
-                                <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
-                                Loading...
-                            </td>
-                        </tr>
+                        <tr><td colspan="6" class="text-center py-4">
+                            <div class="spinner-border spinner-border-sm text-secondary" role="status"></div> Loading...
+                        </td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
-
     </div>
 
     <script src="/assets/js/bootstrap.js"></script>
     <script src="/assets/js/api.js"></script>
-
     <script>
+        if (!isLoggedIn()) window.location.href = "login.html";
+
+        document.getElementById("adminName").innerText = "Welcome, " + getAdminName();
+
         function toggleSidebar() {
             document.getElementById("sidebar").classList.toggle("active");
             document.getElementById("overlay").classList.toggle("active");
@@ -149,14 +130,12 @@
                         </tr>
                     `;
                 });
-
             } catch (err) {
                 console.error("Failed to load applications:", err);
                 document.getElementById("applicationTableBody").innerHTML =
-                    `<tr><td colspan="6" class="text-center text-danger">Failed to load applications. Check console.</td></tr>`;
+                    `<tr><td colspan="6" class="text-center text-danger">Failed to load applications.</td></tr>`;
             }
         }
     </script>
-
 </body>
 </html>

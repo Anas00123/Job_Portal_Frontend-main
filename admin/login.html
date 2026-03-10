@@ -1,31 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - Job Portal</title>
-
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-
     <style>
-        body {
-            background-color: #0b2239;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .login-card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 40px;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
+        body { background-color: #0b2239; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .login-card { background: #fff; border-radius: 12px; padding: 40px; width: 100%; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         .login-card h3 { color: #0b2239; font-weight: 700; }
         .btn-login { background-color: #18a99c; border: none; color: #fff; font-weight: 600; padding: 10px; }
         .btn-login:hover { background-color: #148f84; color: #fff; }
@@ -36,11 +19,9 @@
         .spinner-border { width: 1.2rem; height: 1.2rem; }
     </style>
 </head>
-
 <body>
 
     <div class="login-card">
-
         <div class="text-center mb-4">
             <i class="bi bi-briefcase-fill fs-1 text-success"></i>
             <h3 class="mt-2">Job Portal</h3>
@@ -53,171 +34,100 @@
         </div>
 
         <div id="loginForm">
-
             <div class="mb-3">
                 <label class="form-label fw-semibold">Email</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                    <input type="email" class="form-control" id="email"
-                        placeholder="admin@jobportal.com" autocomplete="email" />
+                    <input type="email" class="form-control" id="email" placeholder="admin@jobportal.com" autocomplete="email" />
                 </div>
             </div>
-
             <div class="mb-4">
                 <label class="form-label fw-semibold">Password</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                    <input type="password" class="form-control" id="password"
-                        placeholder="Enter your password" autocomplete="current-password" />
+                    <input type="password" class="form-control" id="password" placeholder="Enter your password" autocomplete="current-password" />
                     <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                         <i class="bi bi-eye" id="eyeIcon"></i>
                     </button>
                 </div>
             </div>
-
             <button class="btn btn-login w-100" id="loginBtn" onclick="login()">
                 <span id="loginBtnText">Sign In</span>
                 <span id="loginSpinner" class="spinner-border ms-2 d-none" role="status"></span>
             </button>
-
         </div>
-
     </div>
 
-    <!-- api.js MUST come first — defines BASE_URL and apiFetch -->
     <script src="/assets/js/api.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
-
-        // ========== COOKIE HELPERS ==========
-
-        function setCookie(name, value, days) {
-            const expires = new Date();
-            expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-            document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=None;Secure`;
-        }
-
-        function getCookie(name) {
-            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-            return match ? match[2] : null;
-        }
-
-        function deleteCookie(name) {
-            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
-        }
-
-        // ========== REDIRECT IF ALREADY LOGGED IN ==========
-
-        if (getCookie("role")) {
-            window.location.href = "dashboard.html";
-        }
-
-        // ========== TOGGLE PASSWORD ==========
+        // Redirect if already logged in
+        if (isLoggedIn()) window.location.href = "dashboard.html";
 
         document.getElementById("togglePassword").addEventListener("click", function () {
-            const passwordInput = document.getElementById("password");
-            const eyeIcon = document.getElementById("eyeIcon");
-            if (passwordInput.type === "password") {
-                passwordInput.type = "text";
-                eyeIcon.classList.replace("bi-eye", "bi-eye-slash");
-            } else {
-                passwordInput.type = "password";
-                eyeIcon.classList.replace("bi-eye-slash", "bi-eye");
-            }
+            const input = document.getElementById("password");
+            const icon  = document.getElementById("eyeIcon");
+            if (input.type === "password") { input.type = "text";     icon.classList.replace("bi-eye", "bi-eye-slash"); }
+            else                           { input.type = "password"; icon.classList.replace("bi-eye-slash", "bi-eye"); }
         });
-
-        // ========== ENTER KEY ==========
 
         document.getElementById("password").addEventListener("keydown", e => { if (e.key === "Enter") login(); });
         document.getElementById("email").addEventListener("keydown",    e => { if (e.key === "Enter") login(); });
 
-        // ========== ERROR HELPERS ==========
-
-        function showError(message) {
-            document.getElementById("errorMessage").innerText = message;
+        function showError(msg) {
+            document.getElementById("errorMessage").innerText = msg;
             document.getElementById("errorAlert").style.display = "block";
         }
-
-        function hideError() {
-            document.getElementById("errorAlert").style.display = "none";
-        }
-
-        // ========== LOADING STATE ==========
+        function hideError() { document.getElementById("errorAlert").style.display = "none"; }
 
         function setLoading(loading) {
-            const btn     = document.getElementById("loginBtn");
-            const text    = document.getElementById("loginBtnText");
-            const spinner = document.getElementById("loginSpinner");
-            btn.disabled = loading;
-            text.innerText = loading ? "Signing in..." : "Sign In";
-            spinner.classList.toggle("d-none", !loading);
+            document.getElementById("loginBtn").disabled      = loading;
+            document.getElementById("loginBtnText").innerText = loading ? "Signing in..." : "Sign In";
+            document.getElementById("loginSpinner").classList.toggle("d-none", !loading);
         }
-
-        // ========== LOGIN ==========
 
         async function login() {
             hideError();
-
             const email    = document.getElementById("email").value.trim();
             const password = document.getElementById("password").value.trim();
 
-            if (!email || !password) {
-                showError("Please enter both email and password.");
-                return;
-            }
-
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                showError("Please enter a valid email address.");
-                return;
-            }
+            if (!email || !password)                              { showError("Please enter both email and password."); return; }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))       { showError("Please enter a valid email address.");  return; }
 
             setLoading(true);
-
             try {
-                // Use raw fetch for login — apiFetch redirects on 401/403
                 const response = await fetch(`${BASE_URL}/api/auth/login`, {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "ngrok-skip-browser-warning": "true"
-                    },
-                    credentials: "include",  // stores HttpOnly cookies automatically
+                    headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
+                    credentials: "include",
                     body: JSON.stringify({ usernameOrEmail: email, password })
                 });
 
                 const data = await response.json();
 
-                if (!response.ok) {
-                    showError(data.message || "Invalid email or password.");
-                    return;
-                }
+                if (!response.ok) { showError(data.message || "Invalid email or password."); return; }
 
-                // Backend response body: { userId, username, email, role }
-                // accessToken is in HttpOnly cookie — no need to store it manually
-                const role     = data.role || "";
-                const username = data.username || data.email || "Admin";
+                const role     = data.role        || "";
+                const username = data.username    || data.email || "Admin";
+                const token    = data.accessToken || "";
 
-                setCookie("fullName", username, 1);
-                setCookie("role",     role,     1);
+                if (!token) { showError("Login failed: no token received from server."); return; }
 
                 if (role === "ROLE_ADMIN" || role === "ADMIN" || role === "SUB_ADMIN") {
+                    localStorage.setItem("accessToken", token);
+                    localStorage.setItem("role",        role);
+                    localStorage.setItem("fullName",    username);
                     window.location.href = "dashboard.html";
                 } else {
                     showError("Access denied. Admins only.");
-                    deleteCookie("fullName");
-                    deleteCookie("role");
                 }
-
-            } catch (error) {
-                console.error("Login failed:", error);
+            } catch (err) {
+                console.error("Login failed:", err);
                 showError("Something went wrong. Please try again.");
             } finally {
                 setLoading(false);
             }
         }
-
     </script>
-
 </body>
 </html>

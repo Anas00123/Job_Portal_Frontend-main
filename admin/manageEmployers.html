@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>Employers - Admin Panel</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <link href="/assets/css/bootstrap.css" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="icon" type="image/png" href="/assets/images/tab-logo1.png">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
     <style>
         body { margin: 0; background-color: #f4f6f9; overflow-x: hidden; }
         .sidebar { position: fixed; top: 0; left: -250px; width: 250px; height: 100vh; background: #0b2239; color: #fff; padding-top: 20px; transition: 0.3s; z-index: 1000; }
@@ -25,7 +22,6 @@
         .card { border-radius: 12px; box-shadow: 0 0 12px rgba(0,0,0,0.06); }
     </style>
 </head>
-
 <body>
 
     <div class="sidebar" id="sidebar">
@@ -41,7 +37,6 @@
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
     <div class="main-content">
-
         <nav class="navbar navbar-light bg-white shadow-sm mb-4 rounded">
             <div class="container-fluid">
                 <button class="btn btn-dark d-lg-none" onclick="toggleSidebar()"><i class="fa fa-bars"></i></button>
@@ -52,22 +47,13 @@
 
         <div class="row g-4 mb-4">
             <div class="col-md-4 col-sm-6">
-                <div class="card p-3">
-                    <h6>Total Employers</h6>
-                    <h3 id="totalEmployers">—</h3>
-                </div>
+                <div class="card p-3"><h6>Total Employers</h6><h3 id="totalEmployers">—</h3></div>
             </div>
             <div class="col-md-4 col-sm-6">
-                <div class="card p-3">
-                    <h6>Active Employers</h6>
-                    <h3 id="activeEmployers">—</h3>
-                </div>
+                <div class="card p-3"><h6>Active Employers</h6><h3 id="activeEmployers">—</h3></div>
             </div>
             <div class="col-md-4 col-sm-12">
-                <div class="card p-3">
-                    <h6>Pending / Suspended</h6>
-                    <h3 id="blockedEmployers">—</h3>
-                </div>
+                <div class="card p-3"><h6>Pending / Suspended</h6><h3 id="blockedEmployers">—</h3></div>
             </div>
         </div>
 
@@ -76,35 +62,26 @@
                 <table class="table align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th>#</th>
-                            <th>Full Name</th>
-                            <th>Company</th>
-                            <th>Email</th>
-                            <th>Location</th>
-                            <th>Status</th>
-                            <th>Registered Date</th>
-                            <th>Action</th>
+                            <th>#</th><th>Full Name</th><th>Company</th><th>Email</th>
+                            <th>Location</th><th>Status</th><th>Registered Date</th><th>Action</th>
                         </tr>
                     </thead>
                     <tbody id="employerTableBody">
-                        <tr>
-                            <td colspan="8" class="text-center py-4">
-                                <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
-                                Loading...
-                            </td>
-                        </tr>
+                        <tr><td colspan="8" class="text-center py-4">
+                            <div class="spinner-border spinner-border-sm text-secondary" role="status"></div> Loading...
+                        </td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
-
     </div>
 
     <script src="/assets/js/bootstrap.js"></script>
-    <!-- api.js MUST come first -->
     <script src="/assets/js/api.js"></script>
-
     <script>
+        if (!isLoggedIn()) window.location.href = "login.html";
+
+        document.getElementById("adminName").innerText = "Welcome, " + getAdminName();
 
         const statusMap = {
             "ACTIVE":    { cls: "bg-success",           label: "Active"    },
@@ -112,34 +89,10 @@
             "SUSPENDED": { cls: "bg-danger",            label: "Suspended" }
         };
 
-        function getCookie(name) {
-            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-            return match ? match[2] : null;
-        }
-
-        function deleteCookie(name) {
-            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
-        }
-
-        function logout() {
-            deleteCookie("fullName");
-            deleteCookie("role");
-            localStorage.clear();
-            window.location.href = "login.html";
-        }
-
         function toggleSidebar() {
             document.getElementById("sidebar").classList.toggle("active");
             document.getElementById("overlay").classList.toggle("active");
         }
-
-        // ── Auth check ──
-        if (!getCookie("role")) {
-            window.location.href = "login.html";
-        }
-
-        document.getElementById("adminName").innerText =
-            "Welcome, " + (getCookie("fullName") || "Admin");
 
         document.addEventListener("DOMContentLoaded", loadEmployers);
 
@@ -162,10 +115,7 @@
 
                 data.forEach((recruiter, index) => {
                     const badge = statusMap[recruiter.recruiterStatus] || { cls: "bg-secondary", label: recruiter.recruiterStatus };
-                    const date  = recruiter.registeredAt
-                        ? new Date(recruiter.registeredAt).toLocaleDateString("en-IN")
-                        : "N/A";
-
+                    const date  = recruiter.registeredAt ? new Date(recruiter.registeredAt).toLocaleDateString("en-IN") : "N/A";
                     tbody.innerHTML += `
                         <tr>
                             <td>${index + 1}</td>
@@ -178,14 +128,10 @@
                             <td>
                                 <button class="btn btn-sm btn-success"
                                     onclick="changeStatus(${recruiter.recruiterId}, 'ACTIVE')"
-                                    ${recruiter.recruiterStatus === 'ACTIVE' ? 'disabled' : ''}>
-                                    Active
-                                </button>
+                                    ${recruiter.recruiterStatus === 'ACTIVE' ? 'disabled' : ''}>Active</button>
                                 <button class="btn btn-sm btn-warning"
                                     onclick="changeStatus(${recruiter.recruiterId}, 'SUSPENDED')"
-                                    ${recruiter.recruiterStatus === 'SUSPENDED' ? 'disabled' : ''}>
-                                    Suspend
-                                </button>
+                                    ${recruiter.recruiterStatus === 'SUSPENDED' ? 'disabled' : ''}>Suspend</button>
                                 <button class="btn btn-sm btn-danger" onclick="deleteEmployer(${recruiter.recruiterId})">
                                     <i class="fa fa-trash"></i>
                                 </button>
@@ -193,40 +139,32 @@
                         </tr>
                     `;
                 });
-
             } catch (err) {
                 console.error("Failed to load employers:", err);
                 document.getElementById("employerTableBody").innerHTML =
-                    `<tr><td colspan="8" class="text-center text-danger">Failed to load employers. Check console.</td></tr>`;
+                    `<tr><td colspan="8" class="text-center text-danger">Failed to load employers.</td></tr>`;
             }
         }
 
         async function changeStatus(id, status) {
-            const label = status === "ACTIVE" ? "activate" : "suspend";
-            if (!confirm(`Are you sure you want to ${label} this recruiter?`)) return;
-
+            if (!confirm(`Are you sure you want to ${status === "ACTIVE" ? "activate" : "suspend"} this recruiter?`)) return;
             try {
                 await apiFetch(`/api/auth/recruiter/${id}/status?status=${status}`, { method: "PATCH" });
                 loadEmployers();
             } catch (err) {
-                console.error("Status update error:", err);
-                alert("Failed to update status. Check console.");
+                alert("Failed to update status.");
             }
         }
 
         async function deleteEmployer(id) {
             if (!confirm("Are you sure you want to delete this employer?")) return;
-
             try {
                 await apiFetch(`/api/auth/recruiter/${id}`, { method: "DELETE" });
                 loadEmployers();
             } catch (err) {
-                console.error("Delete error:", err);
-                alert("Failed to delete. Check console.");
+                alert("Failed to delete employer.");
             }
         }
-
     </script>
-
 </body>
 </html>
