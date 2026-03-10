@@ -227,7 +227,7 @@
 
         function getAuthHeaders() {
             return {
-                "Authorization": "Bearer " + getToken(),
+                // "Authorization": "Bearer " + getToken(),
                 "Content-Type": "application/json",
                 "ngrok-skip-browser-warning": "true"
             };
@@ -277,9 +277,13 @@
             showSpinner();
             try {
                 const [jobsRes, recruitersRes, applicationsRes] = await Promise.all([
-                    fetch(`${BASE_URL}/api/jobs`,                { headers: getAuthHeaders() }),
-                    fetch(`${BASE_URL}/api/auth/recruiter`,      { headers: getAuthHeaders() }),
-                    fetch(`${BASE_URL}/api/applications`,        { headers: getAuthHeaders() })
+                    // fetch(`${BASE_URL}/api/jobs`,                { headers: getAuthHeaders() }),
+                    // fetch(`${BASE_URL}/api/auth/recruiter`,      { headers: getAuthHeaders() }),
+                    // fetch(`${BASE_URL}/api/applications`,        { headers: getAuthHeaders() })
+                    fetch(`${BASE_URL}`,  
+                               {
+                                Credentials : "include",  
+                         headers: getAuthHeaders() }),
                 ]);
 
                 if (jobsRes.status === 401 || jobsRes.status === 403) { handleUnauthorized(); return; }
