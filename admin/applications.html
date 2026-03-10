@@ -125,6 +125,7 @@
                             <td>${app.candidateName ?? "N/A"}</td>
                             <td>${app.jobTitle      ?? "N/A"}</td>
                             <td>${app.companyName   ?? "N/A"}</td>
+                             <td>${getStatusBadge(app.applicationStatus)}</td>
                             <td><span class="badge ${badge.cls}">${badge.label}</span></td>
                             <td>${date}</td>
                         </tr>
