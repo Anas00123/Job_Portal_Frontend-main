@@ -177,16 +177,17 @@
         async function loadDashboard() {
             showSpinner();
             try {
-                const [jobs, recruiters, applications] = await Promise.all([
+                const [jobs, recruiters, applications, users] = await Promise.all([
                     apiFetch("/api/admin/jobs"),
                     apiFetch("/api/admin/recruiters"),
-                    apiFetch("/api/admin/applications")
+                    apiFetch("/api/admin/applications"),
+                    apiFetch("/api/admin/users")
                 ]);
 
                 document.getElementById("totalJobs").innerText         = jobs.length;
                 document.getElementById("totalRecruiters").innerText   = recruiters.length;
                 document.getElementById("totalApplications").innerText = applications.length;
-                document.getElementById("totalUsers").innerText        = "--";
+                document.getElementById("totalUsers").innerText        = users.length;
 
                 const tbody = document.getElementById("applicationsTableBody");
                 if (!applications.length) {
