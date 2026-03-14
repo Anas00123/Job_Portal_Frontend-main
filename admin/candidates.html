@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>Candidates - Admin Panel</title>
@@ -22,19 +21,11 @@
         .main-content { margin-left: 0; padding: 20px; transition: 0.3s; }
         @media(min-width: 992px) { .sidebar { left: 0; } .main-content { margin-left: 250px; } }
         .card { border-radius: 12px; box-shadow: 0 0 12px rgba(0,0,0,0.06); }
-        .profile-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; cursor: pointer; border: 2px solid #18a99c; }
-        .profile-avatar:hover { opacity: 0.8; }
         .admin-name-btn { cursor: pointer; font-weight: 600; }
         .admin-name-btn:hover { text-decoration: underline; }
-        .profile-modal-avatar { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #18a99c; }
-        .avatar-upload-overlay { position: relative; display: inline-block; cursor: pointer; }
-        .avatar-upload-overlay:hover .avatar-edit-btn { display: flex; }
-        .avatar-edit-btn { display: none; position: absolute; bottom: 0; right: 0; background: #18a99c; color: white; border-radius: 50%; width: 28px; height: 28px; align-items: center; justify-content: center; font-size: 12px; }
     </style>
 </head>
-
 <body>
-
     <div class="sidebar" id="sidebar">
         <h4>Admin Panel</h4>
         <a href="dashboard.html"><i class="fa fa-chart-line me-2"></i> Dashboard</a>
@@ -44,128 +35,91 @@
         <a href="subAdmins.html"><i class="fa fa-shield me-2"></i> Sub Admins</a>
         <a href="#" onclick="logout()"><i class="fa fa-sign-out-alt me-2"></i> Logout</a>
     </div>
-
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
-
     <div class="main-content">
         <nav class="navbar navbar-light bg-white shadow-sm mb-4 rounded">
             <div class="container-fluid">
                 <button class="btn btn-dark d-lg-none" onclick="toggleSidebar()"><i class="fa fa-bars"></i></button>
                 <span class="navbar-brand mb-0 h4">Candidates</span>
-                <div class="d-flex align-items-center gap-2">
-                    <span class="admin-name-btn" onclick="openProfileModal()" id="adminName">Welcome, Admin</span>
-                    <img id="adminAvatar" src="/assets/images/testimonial3.jfif" class="profile-avatar" onclick="openProfileModal()" title="View Profile" />
-                </div>
+                <span class="admin-name-btn" onclick="openProfileModal()" id="adminName">Welcome, Admin</span>
             </div>
         </nav>
-
         <div class="row g-4 mb-4">
             <div class="col-md-4 col-sm-6"><div class="card p-3"><h6>Total Candidates</h6><h3 id="totalCandidates">—</h3></div></div>
             <div class="col-md-4 col-sm-6"><div class="card p-3"><h6>Active Candidates</h6><h3 id="activeCandidates">—</h3></div></div>
             <div class="col-md-4 col-sm-12"><div class="card p-3"><h6>Blocked Candidates</h6><h3 id="blockedCandidates">—</h3></div></div>
         </div>
-
         <div class="card p-4">
             <h5 class="mb-3">All Candidates</h5>
             <div class="table-responsive">
                 <table class="table align-middle">
                     <thead class="table-light">
-                        <tr>
-                            <th>#</th><th>Name</th><th>Email</th><th>Phone</th>
-                            <th>Status</th><th>Registered</th><th>Action</th>
-                        </tr>
+                        <tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Registered</th><th>Action</th></tr>
                     </thead>
                     <tbody id="candidateTableBody">
-                        <tr><td colspan="7" class="text-center py-4">
-                            <div class="spinner-border spinner-border-sm text-secondary" role="status"></div> Loading...
-                        </td></tr>
+                        <tr><td colspan="7" class="text-center py-4"><div class="spinner-border spinner-border-sm text-secondary" role="status"></div> Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- ===== PROFILE MODAL ===== -->
+    <!-- PROFILE MODAL -->
     <div class="modal fade" id="profileModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title"><i class="bi bi-person-circle me-2"></i>My Profile</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Avatar + Info -->
-                    <div class="d-flex align-items-center gap-4 mb-4 p-3 bg-light rounded">
-                        <div class="avatar-upload-overlay" onclick="document.getElementById('avatarInput').click()">
-                            <img id="modalAvatar" src="/assets/images/testimonial3.jfif" class="profile-modal-avatar" />
-                            <div class="avatar-edit-btn"><i class="bi bi-camera"></i></div>
-                        </div>
-                        <input type="file" id="avatarInput" accept="image/*" class="d-none" onchange="uploadProfilePicture(this)" />
-                        <div>
-                            <h5 class="mb-1" id="profileDisplayName">--</h5>
-                            <p class="text-muted mb-1" id="profileDisplayEmail">--</p>
-                            <span class="badge bg-success" id="profileDisplayRole">--</span>
-                        </div>
+        <div class="modal-dialog modal-lg"><div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title"><i class="bi bi-person-circle me-2"></i>My Profile</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex align-items-center gap-3 mb-4 p-3 bg-light rounded">
+                    <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" style="width:60px;height:60px;font-size:24px;color:white;"><i class="bi bi-person"></i></div>
+                    <div>
+                        <h5 class="mb-1" id="profileDisplayName">--</h5>
+                        <p class="text-muted mb-1" id="profileDisplayEmail">--</p>
+                        <span class="badge bg-success" id="profileDisplayRole">--</span>
                     </div>
-                    <!-- Tabs -->
-                    <ul class="nav nav-tabs mb-3" id="profileTabs">
-                        <li class="nav-item"><a class="nav-link active" href="#" onclick="switchTab('editProfile',this)"><i class="bi bi-pencil me-1"></i> Edit Profile</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('changePassword',this)"><i class="bi bi-lock me-1"></i> Change Password</a></li>
-                    </ul>
-                    <!-- Tab: Edit Profile -->
-                    <div id="tab_editProfile">
-                        <div class="alert alert-success d-none" id="editProfileSuccess">Profile updated successfully!</div>
-                        <div class="alert alert-danger d-none" id="editProfileError"></div>
-                        <div class="row g-3">
-                            <div class="col-md-6"><label class="form-label fw-semibold">Full Name</label><input type="text" class="form-control" id="p_fullname" /></div>
-                            <div class="col-md-6"><label class="form-label fw-semibold">Username</label><input type="text" class="form-control" id="p_username" /></div>
-                            <div class="col-md-6"><label class="form-label fw-semibold">Email</label><input type="email" class="form-control" id="p_email" disabled /><small class="text-muted">Email cannot be changed</small></div>
-                            <div class="col-md-6"><label class="form-label fw-semibold">Phone</label><input type="number" class="form-control" id="p_phone" /></div>
-                        </div>
-                        <div class="mt-3 text-end">
-                            <button class="btn btn-success" id="saveProfileBtn" onclick="saveProfile()">
-                                <span id="saveProfileText">Save Changes</span>
-                                <span id="saveProfileSpinner" class="spinner-border spinner-border-sm d-none"></span>
+                </div>
+                <ul class="nav nav-tabs mb-3" id="profileTabs">
+                    <li class="nav-item"><a class="nav-link active" href="#" onclick="switchTab('editProfile',this)"><i class="bi bi-pencil me-1"></i> Edit Profile</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('changePassword',this)"><i class="bi bi-lock me-1"></i> Change Password</a></li>
+                </ul>
+                <div id="tab_editProfile">
+                    <div class="alert alert-success d-none" id="editProfileSuccess">Profile updated successfully!</div>
+                    <div class="alert alert-danger d-none" id="editProfileError"></div>
+                    <div class="row g-3">
+                        <div class="col-md-6"><label class="form-label fw-semibold">Full Name</label><input type="text" class="form-control" id="p_fullname" /></div>
+                        <div class="col-md-6"><label class="form-label fw-semibold">Username</label><input type="text" class="form-control" id="p_username" /></div>
+                        <div class="col-md-6"><label class="form-label fw-semibold">Email</label><input type="email" class="form-control" id="p_email" disabled /><small class="text-muted">Email cannot be changed</small></div>
+                        <div class="col-md-6"><label class="form-label fw-semibold">Phone</label><input type="number" class="form-control" id="p_phone" /></div>
+                    </div>
+                    <div class="mt-3 text-end">
+                        <button class="btn btn-success" id="saveProfileBtn" onclick="saveProfile()">
+                            <span id="saveProfileText">Save Changes</span>
+                            <span id="saveProfileSpinner" class="spinner-border spinner-border-sm d-none"></span>
+                        </button>
+                    </div>
+                </div>
+                <div id="tab_changePassword" style="display:none;">
+                    <div class="alert alert-success d-none" id="changePwSuccess">Password changed successfully!</div>
+                    <div class="alert alert-danger d-none" id="changePwError"></div>
+                    <form onsubmit="return false;">
+                        <div class="mb-3"><label class="form-label fw-semibold">Current Password</label>
+                            <div class="input-group"><input type="password" class="form-control" id="p_currentPw" placeholder="Enter current password" /><button class="btn btn-outline-secondary" type="button" onclick="togglePw('p_currentPw',this)"><i class="bi bi-eye"></i></button></div></div>
+                        <div class="mb-3"><label class="form-label fw-semibold">New Password</label>
+                            <div class="input-group"><input type="password" class="form-control" id="p_newPw" placeholder="Enter new password" /><button class="btn btn-outline-secondary" type="button" onclick="togglePw('p_newPw',this)"><i class="bi bi-eye"></i></button></div></div>
+                        <div class="mb-3"><label class="form-label fw-semibold">Confirm New Password</label>
+                            <div class="input-group"><input type="password" class="form-control" id="p_confirmPw" placeholder="Confirm new password" /><button class="btn btn-outline-secondary" type="button" onclick="togglePw('p_confirmPw',this)"><i class="bi bi-eye"></i></button></div></div>
+                        <div class="text-end">
+                            <button class="btn btn-warning" id="changePwBtn" type="button" onclick="changePassword()">
+                                <span id="changePwText">Change Password</span>
+                                <span id="changePwSpinner" class="spinner-border spinner-border-sm d-none"></span>
                             </button>
                         </div>
-                    </div>
-                    <!-- Tab: Change Password — wrapped in form to fix DOM warning -->
-                    <div id="tab_changePassword" style="display:none;">
-                        <div class="alert alert-success d-none" id="changePwSuccess">Password changed successfully!</div>
-                        <div class="alert alert-danger d-none" id="changePwError"></div>
-                        <form onsubmit="return false;">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Current Password</label>
-                                <div class="input-group">
-                                    <input type="password" class="form-control" id="p_currentPw" placeholder="Enter current password" />
-                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePw('p_currentPw',this)"><i class="bi bi-eye"></i></button>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">New Password</label>
-                                <div class="input-group">
-                                    <input type="password" class="form-control" id="p_newPw" placeholder="Enter new password" />
-                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePw('p_newPw',this)"><i class="bi bi-eye"></i></button>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Confirm New Password</label>
-                                <div class="input-group">
-                                    <input type="password" class="form-control" id="p_confirmPw" placeholder="Confirm new password" />
-                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePw('p_confirmPw',this)"><i class="bi bi-eye"></i></button>
-                                </div>
-                            </div>
-                            <div class="text-end">
-                                <button class="btn btn-warning" id="changePwBtn" type="button" onclick="changePassword()">
-                                    <span id="changePwText">Change Password</span>
-                                    <span id="changePwSpinner" class="spinner-border spinner-border-sm d-none"></span>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                    </form>
                 </div>
             </div>
-        </div>
+        </div></div>
     </div>
 
     <script src="/assets/js/api.js"></script>
@@ -173,14 +127,8 @@
     <script>
         if (!isLoggedIn()) window.location.href = "login.html";
         document.getElementById("adminName").innerText = "Welcome, " + getAdminName();
-
-        function toggleSidebar() {
-            document.getElementById("sidebar").classList.toggle("active");
-            document.getElementById("overlay").classList.toggle("active");
-        }
-
+        function toggleSidebar() { document.getElementById("sidebar").classList.toggle("active"); document.getElementById("overlay").classList.toggle("active"); }
         document.addEventListener("DOMContentLoaded", loadCandidates);
-
         async function loadCandidates() {
             const tbody = document.getElementById("candidateTableBody");
             try {
@@ -188,41 +136,22 @@
                 document.getElementById("totalCandidates").textContent   = data.length;
                 document.getElementById("activeCandidates").textContent  = data.filter(c => c.userStatus === "ACTIVE").length;
                 document.getElementById("blockedCandidates").textContent = data.filter(c => c.userStatus === "SUSPENDED" || c.userStatus === "BLOCKED").length;
-
-                if (!data.length) {
-                    tbody.innerHTML = `<tr><td colspan="7" class="text-center">No candidates found.</td></tr>`;
-                    return;
-                }
-
+                if (!data.length) { tbody.innerHTML = `<tr><td colspan="7" class="text-center">No candidates found.</td></tr>`; return; }
                 tbody.innerHTML = data.map((c, i) => {
                     const statusCls = c.userStatus === "ACTIVE" ? "bg-success" : "bg-danger";
                     const date = c.createdAt ? new Date(c.createdAt).toLocaleDateString("en-IN") : "N/A";
-                    return `<tr>
-                        <td>${i + 1}</td>
-                        <td>${c.fullName ?? "N/A"}</td>
-                        <td>${c.email ?? "N/A"}</td>
-                        <td>${c.phone ?? "N/A"}</td>
-                        <td><span class="badge ${statusCls}">${c.userStatus ?? "N/A"}</span></td>
-                        <td>${date}</td>
-                        <td>
-                            <button class="btn btn-sm btn-info"><i class="fa fa-eye"></i></button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteCandidate(${c.id})"><i class="fa fa-trash"></i></button>
-                        </td>
-                    </tr>`;
+                    return `<tr><td>${i+1}</td><td>${c.fullName??"N/A"}</td><td>${c.email??"N/A"}</td><td>${c.phone??"N/A"}</td><td><span class="badge ${statusCls}">${c.userStatus??"N/A"}</span></td><td>${date}</td><td><button class="btn btn-sm btn-info"><i class="fa fa-eye"></i></button> <button class="btn btn-sm btn-danger" onclick="deleteCandidate(${c.id})"><i class="fa fa-trash"></i></button></td></tr>`;
                 }).join("");
             } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4"><i class="fa fa-info-circle me-2"></i>Candidates API not available yet.</td></tr>`;
-                ["totalCandidates", "activeCandidates", "blockedCandidates"].forEach(id => document.getElementById(id).textContent = "—");
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">Candidates API not available yet.</td></tr>`;
+                ["totalCandidates","activeCandidates","blockedCandidates"].forEach(id => document.getElementById(id).textContent = "—");
             }
         }
-
         async function deleteCandidate(id) {
             if (!confirm("Delete this candidate?")) return;
             try { await apiFetch(`/api/admin/candidates/${id}`, { method: "DELETE" }); loadCandidates(); }
             catch (err) { alert("Failed to delete candidate."); }
         }
-
-        // ── Profile Modal ──
         async function openProfileModal() {
             switchTab("editProfile", document.querySelector("#profileTabs .nav-link"));
             ["editProfileSuccess","editProfileError","changePwSuccess","changePwError"].forEach(id => document.getElementById(id).classList.add("d-none"));
@@ -230,23 +159,18 @@
             new bootstrap.Modal(document.getElementById("profileModal")).show();
             try {
                 const data = await apiFetch("/api/auth/me");
-                document.getElementById("profileDisplayName").innerText  = data.fullName  || data.username || "Admin";
-                document.getElementById("profileDisplayEmail").innerText = data.username  || "";
-                document.getElementById("profileDisplayRole").innerText  = data.role      || "ADMIN";
-                document.getElementById("p_fullname").value = data.fullName  || "";
-                document.getElementById("p_username").value = data.username  || "";
-                document.getElementById("p_email").value    = data.username  || "";
-                document.getElementById("p_phone").value    = data.phone     || "";
+                document.getElementById("profileDisplayName").innerText  = data.fullName || data.username || "Admin";
+                document.getElementById("profileDisplayEmail").innerText = data.username || "";
+                document.getElementById("profileDisplayRole").innerText  = data.role     || "ADMIN";
+                document.getElementById("p_fullname").value = data.fullName || "";
+                document.getElementById("p_username").value = data.username || "";
+                document.getElementById("p_email").value    = data.username || "";
+                document.getElementById("p_phone").value    = data.phone    || "";
                 const displayName = data.fullName || data.username || "Admin";
                 document.getElementById("adminName").innerText = "Welcome, " + displayName;
                 localStorage.setItem("fullName", displayName);
-                try {
-                    const img = await apiFetch("/api/profile/profileimg");
-                    if (img && typeof img === "string") { document.getElementById("modalAvatar").src = img; document.getElementById("adminAvatar").src = img; }
-                } catch { }
             } catch (err) { console.error("Failed to load profile:", err); }
         }
-
         function switchTab(tabName, clickedLink) {
             document.getElementById("tab_editProfile").style.display    = "none";
             document.getElementById("tab_changePassword").style.display = "none";
@@ -254,13 +178,9 @@
             document.querySelectorAll("#profileTabs .nav-link").forEach(l => l.classList.remove("active"));
             clickedLink.classList.add("active");
         }
-
         async function saveProfile() {
-            const fullname  = document.getElementById("p_fullname").value.trim();
-            const username  = document.getElementById("p_username").value.trim();
-            const phone     = document.getElementById("p_phone").value.trim();
-            const successEl = document.getElementById("editProfileSuccess");
-            const errorEl   = document.getElementById("editProfileError");
+            const fullname = document.getElementById("p_fullname").value.trim(); const username = document.getElementById("p_username").value.trim(); const phone = document.getElementById("p_phone").value.trim();
+            const successEl = document.getElementById("editProfileSuccess"); const errorEl = document.getElementById("editProfileError");
             successEl.classList.add("d-none"); errorEl.classList.add("d-none");
             const btn = document.getElementById("saveProfileBtn"); const btnText = document.getElementById("saveProfileText"); const spinner = document.getElementById("saveProfileSpinner");
             btn.disabled = true; btnText.innerText = "Saving..."; spinner.classList.remove("d-none");
@@ -273,13 +193,9 @@
             } catch (err) { errorEl.innerText = err.message || "Failed."; errorEl.classList.remove("d-none"); }
             finally { btn.disabled = false; btnText.innerText = "Save Changes"; spinner.classList.add("d-none"); }
         }
-
         async function changePassword() {
-            const currentPw = document.getElementById("p_currentPw").value.trim();
-            const newPw     = document.getElementById("p_newPw").value.trim();
-            const confirmPw = document.getElementById("p_confirmPw").value.trim();
-            const successEl = document.getElementById("changePwSuccess");
-            const errorEl   = document.getElementById("changePwError");
+            const currentPw = document.getElementById("p_currentPw").value.trim(); const newPw = document.getElementById("p_newPw").value.trim(); const confirmPw = document.getElementById("p_confirmPw").value.trim();
+            const successEl = document.getElementById("changePwSuccess"); const errorEl = document.getElementById("changePwError");
             successEl.classList.add("d-none"); errorEl.classList.add("d-none");
             if (!currentPw || !newPw || !confirmPw) { errorEl.innerText = "Please fill all password fields."; errorEl.classList.remove("d-none"); return; }
             if (newPw !== confirmPw) { errorEl.innerText = "New passwords do not match."; errorEl.classList.remove("d-none"); return; }
@@ -293,24 +209,6 @@
             } catch (err) { errorEl.innerText = err.message || "Failed to change password."; errorEl.classList.remove("d-none"); }
             finally { btn.disabled = false; btnText.innerText = "Change Password"; spinner.classList.add("d-none"); }
         }
-
-        async function uploadProfilePicture(input) {
-            const file = input.files[0]; if (!file) return;
-            const formData = new FormData(); formData.append("file", file);
-            try {
-                const token = localStorage.getItem("accessToken");
-                const res = await fetch(`${BASE_URL}/api/profile/upload/profileimg`, {
-                    method: "POST", credentials: "include",
-                    headers: { "Authorization": "Bearer " + token, "ngrok-skip-browser-warning": "true" },
-                    body: formData
-                });
-                if (!res.ok) throw new Error("Upload failed");
-                const data = await res.json();
-                if (data.profileImg) { document.getElementById("modalAvatar").src = data.profileImg; document.getElementById("adminAvatar").src = data.profileImg; }
-                alert("Profile picture updated!");
-            } catch (err) { alert("Upload failed: " + err.message); }
-        }
-
         function togglePw(inputId, btn) {
             const input = document.getElementById(inputId);
             if (input.type === "password") { input.type = "text"; btn.innerHTML = '<i class="bi bi-eye-slash"></i>'; }
