@@ -36,6 +36,7 @@
         <a href="#" onclick="logout()"><i class="fa fa-sign-out-alt me-2"></i> Logout</a>
     </div>
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
     <div class="main-content">
         <nav class="navbar navbar-light bg-white shadow-sm mb-4 rounded">
             <div class="container-fluid">
@@ -44,20 +45,27 @@
                 <span class="admin-name-btn" onclick="openProfileModal()" id="adminName">Welcome, Admin</span>
             </div>
         </nav>
+
         <div class="row g-4 mb-4">
             <div class="col-md-4 col-sm-6"><div class="card p-3"><h6>Total Candidates</h6><h3 id="totalCandidates">—</h3></div></div>
             <div class="col-md-4 col-sm-6"><div class="card p-3"><h6>Active Candidates</h6><h3 id="activeCandidates">—</h3></div></div>
             <div class="col-md-4 col-sm-12"><div class="card p-3"><h6>Blocked Candidates</h6><h3 id="blockedCandidates">—</h3></div></div>
         </div>
+
         <div class="card p-4">
             <h5 class="mb-3">All Candidates</h5>
             <div class="table-responsive">
                 <table class="table align-middle">
                     <thead class="table-light">
-                        <tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Registered</th><th>Action</th></tr>
+                        <tr>
+                            <th>#</th><th>Name</th><th>Email</th><th>Phone</th>
+                            <th>Status</th><th>Registered</th><th>Action</th>
+                        </tr>
                     </thead>
                     <tbody id="candidateTableBody">
-                        <tr><td colspan="7" class="text-center py-4"><div class="spinner-border spinner-border-sm text-secondary" role="status"></div> Loading...</td></tr>
+                        <tr><td colspan="7" class="text-center py-4">
+                            <div class="spinner-border spinner-border-sm text-secondary" role="status"></div> Loading...
+                        </td></tr>
                     </tbody>
                 </table>
             </div>
@@ -73,7 +81,8 @@
             </div>
             <div class="modal-body">
                 <div class="d-flex align-items-center gap-3 mb-4 p-3 bg-light rounded">
-                    <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" style="width:60px;height:60px;font-size:24px;color:white;"><i class="bi bi-person"></i></div>
+                    <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center"
+                         style="width:60px;height:60px;font-size:24px;color:white;"><i class="bi bi-person"></i></div>
                     <div>
                         <h5 class="mb-1" id="profileDisplayName">--</h5>
                         <p class="text-muted mb-1" id="profileDisplayEmail">--</p>
@@ -127,8 +136,14 @@
     <script>
         if (!isLoggedIn()) window.location.href = "login.html";
         document.getElementById("adminName").innerText = "Welcome, " + getAdminName();
-        function toggleSidebar() { document.getElementById("sidebar").classList.toggle("active"); document.getElementById("overlay").classList.toggle("active"); }
+
+        function toggleSidebar() {
+            document.getElementById("sidebar").classList.toggle("active");
+            document.getElementById("overlay").classList.toggle("active");
+        }
+
         document.addEventListener("DOMContentLoaded", loadCandidates);
+
         async function loadCandidates() {
             const tbody = document.getElementById("candidateTableBody");
             try {
@@ -136,22 +151,74 @@
                 document.getElementById("totalCandidates").textContent   = data.length;
                 document.getElementById("activeCandidates").textContent  = data.filter(c => c.userStatus === "ACTIVE").length;
                 document.getElementById("blockedCandidates").textContent = data.filter(c => c.userStatus === "SUSPENDED" || c.userStatus === "BLOCKED").length;
-                if (!data.length) { tbody.innerHTML = `<tr><td colspan="7" class="text-center">No candidates found.</td></tr>`; return; }
+
+                if (!data.length) {
+                    tbody.innerHTML = `<tr><td colspan="7" class="text-center">No candidates found.</td></tr>`;
+                    return;
+                }
+
                 tbody.innerHTML = data.map((c, i) => {
-                    const statusCls = c.userStatus === "ACTIVE" ? "bg-success" : "bg-danger";
-                    const date = c.createdAt ? new Date(c.createdAt).toLocaleDateString("en-IN") : "N/A";
-                    return `<tr><td>${i+1}</td><td>${c.fullName??"N/A"}</td><td>${c.email??"N/A"}</td><td>${c.phone??"N/A"}</td><td><span class="badge ${statusCls}">${c.userStatus??"N/A"}</span></td><td>${date}</td><td><button class="btn btn-sm btn-info"><i class="fa fa-eye"></i></button> <button class="btn btn-sm btn-danger" onclick="deleteCandidate(${c.id})"><i class="fa fa-trash"></i></button></td></tr>`;
+                    const isActive  = c.userStatus === "ACTIVE";
+                    const statusCls = isActive ? "bg-success" : "bg-danger";
+                    const date      = c.createdAt ? new Date(c.createdAt).toLocaleDateString("en-IN") : "N/A";
+                    return `<tr>
+                        <td>${i + 1}</td>
+                        <td>${c.fullName ?? "N/A"}</td>
+                        <td>${c.email   ?? "N/A"}</td>
+                        <td>${c.phone   ?? "N/A"}</td>
+                        <td><span class="badge ${statusCls}">${c.userStatus ?? "N/A"}</span></td>
+                        <td>${date}</td>
+                        <td>
+                            <div class="d-flex gap-1 flex-wrap">
+                                <button class="btn btn-sm btn-outline-success"
+                                    onclick="activateCandidate(${c.id})"
+                                    ${isActive ? "disabled" : ""}>
+                                    <i class="bi bi-check-circle me-1"></i>Activate
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning"
+                                    onclick="deactivateCandidate(${c.id})"
+                                    ${!isActive ? "disabled" : ""}>
+                                    <i class="bi bi-slash-circle me-1"></i>Deactivate
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger"
+                                    onclick="deleteCandidate(${c.id})">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>`;
                 }).join("");
+
             } catch (err) {
                 tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">Candidates API not available yet.</td></tr>`;
-                ["totalCandidates","activeCandidates","blockedCandidates"].forEach(id => document.getElementById(id).textContent = "—");
+                ["totalCandidates", "activeCandidates", "blockedCandidates"].forEach(id => document.getElementById(id).textContent = "—");
             }
         }
-        async function deleteCandidate(id) {
-            if (!confirm("Delete this candidate?")) return;
-            try { await apiFetch(`/api/admin/candidates/${id}`, { method: "DELETE" }); loadCandidates(); }
-            catch (err) { alert("Failed to delete candidate."); }
+
+        async function activateCandidate(id) {
+            if (!confirm("Activate this candidate?")) return;
+            try {
+                await apiFetch(`/api/admin/candidates/${id}/activate`, { method: "PATCH" });
+                loadCandidates();
+            } catch (err) { alert("Failed to activate candidate."); }
         }
+
+        async function deactivateCandidate(id) {
+            if (!confirm("Deactivate this candidate?")) return;
+            try {
+                await apiFetch(`/api/admin/candidates/${id}/deactivate`, { method: "PATCH" });
+                loadCandidates();
+            } catch (err) { alert("Failed to deactivate candidate."); }
+        }
+
+        async function deleteCandidate(id) {
+            if (!confirm("Delete this candidate? This cannot be undone.")) return;
+            try {
+                await apiFetch(`/api/admin/candidates/${id}`, { method: "DELETE" });
+                loadCandidates();
+            } catch (err) { alert("Failed to delete candidate."); }
+        }
+
         async function openProfileModal() {
             switchTab("editProfile", document.querySelector("#profileTabs .nav-link"));
             ["editProfileSuccess","editProfileError","changePwSuccess","changePwError"].forEach(id => document.getElementById(id).classList.add("d-none"));
@@ -171,6 +238,7 @@
                 localStorage.setItem("fullName", displayName);
             } catch (err) { console.error("Failed to load profile:", err); }
         }
+
         function switchTab(tabName, clickedLink) {
             document.getElementById("tab_editProfile").style.display    = "none";
             document.getElementById("tab_changePassword").style.display = "none";
@@ -178,8 +246,11 @@
             document.querySelectorAll("#profileTabs .nav-link").forEach(l => l.classList.remove("active"));
             clickedLink.classList.add("active");
         }
+
         async function saveProfile() {
-            const fullname = document.getElementById("p_fullname").value.trim(); const username = document.getElementById("p_username").value.trim(); const phone = document.getElementById("p_phone").value.trim();
+            const fullname = document.getElementById("p_fullname").value.trim();
+            const username = document.getElementById("p_username").value.trim();
+            const phone    = document.getElementById("p_phone").value.trim();
             const successEl = document.getElementById("editProfileSuccess"); const errorEl = document.getElementById("editProfileError");
             successEl.classList.add("d-none"); errorEl.classList.add("d-none");
             const btn = document.getElementById("saveProfileBtn"); const btnText = document.getElementById("saveProfileText"); const spinner = document.getElementById("saveProfileSpinner");
@@ -193,8 +264,11 @@
             } catch (err) { errorEl.innerText = err.message || "Failed."; errorEl.classList.remove("d-none"); }
             finally { btn.disabled = false; btnText.innerText = "Save Changes"; spinner.classList.add("d-none"); }
         }
+
         async function changePassword() {
-            const currentPw = document.getElementById("p_currentPw").value.trim(); const newPw = document.getElementById("p_newPw").value.trim(); const confirmPw = document.getElementById("p_confirmPw").value.trim();
+            const currentPw = document.getElementById("p_currentPw").value.trim();
+            const newPw     = document.getElementById("p_newPw").value.trim();
+            const confirmPw = document.getElementById("p_confirmPw").value.trim();
             const successEl = document.getElementById("changePwSuccess"); const errorEl = document.getElementById("changePwError");
             successEl.classList.add("d-none"); errorEl.classList.add("d-none");
             if (!currentPw || !newPw || !confirmPw) { errorEl.innerText = "Please fill all password fields."; errorEl.classList.remove("d-none"); return; }
@@ -209,6 +283,7 @@
             } catch (err) { errorEl.innerText = err.message || "Failed to change password."; errorEl.classList.remove("d-none"); }
             finally { btn.disabled = false; btnText.innerText = "Change Password"; spinner.classList.add("d-none"); }
         }
+
         function togglePw(inputId, btn) {
             const input = document.getElementById(inputId);
             if (input.type === "password") { input.type = "text"; btn.innerHTML = '<i class="bi bi-eye-slash"></i>'; }
