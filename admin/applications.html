@@ -302,7 +302,7 @@
 
         /* ── Status map — single source of truth ── */
         const statusMap = {
-            "APPLIED":  { cls: "bg-warning text-dark", label: "Pending"  },
+            "APPLIED":  { cls: "bg-warning text-dark", label: "Applied"  },
             "PENDING":  { cls: "bg-warning text-dark", label: "Pending"  },
             "APPROVED": { cls: "bg-success",           label: "Approved" },
             "REJECTED": { cls: "bg-danger",            label: "Rejected" },
@@ -333,7 +333,7 @@
                 document.getElementById("approvedCount").textContent =
                     data.filter(a => a.applicationStatus === "APPROVED").length;
                 document.getElementById("pendingCount").textContent =
-                    data.filter(a => ["APPLIED"].includes(a.applicationStatus)).length;
+                    data.filter(a => ["APPLIED", "PENDING"].includes(a.applicationStatus)).length;
 
                 if (!data.length) {
                     tbody.innerHTML = `<tr>
