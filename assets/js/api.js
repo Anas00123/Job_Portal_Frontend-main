@@ -1,13 +1,13 @@
-// ✅ Use loggedIn flag instead of accessToken
+const BASE_URL = "https://malcom-isopentyl-malvina.ngrok-free.dev";
+
 function isLoggedIn() {
     return localStorage.getItem("loggedIn") === "true";
 }
 
-// ✅ Remove Authorization header — cookie is sent automatically
 async function apiFetch(endpoint, options = {}) {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
         method: options.method || "GET",
-        credentials: "include",          // ← sends HttpOnly cookie automatically
+        credentials: "include",
         headers: {
             "Content-Type": "application/json",
             "ngrok-skip-browser-warning": "true",
@@ -30,7 +30,6 @@ async function apiFetch(endpoint, options = {}) {
     return text ? JSON.parse(text) : null;
 }
 
-// ✅ Proper logout that clears the server-side cookie too
 function logout() {
     fetch(`${BASE_URL}/api/auth/logout`, {
         method: "POST",
@@ -39,4 +38,12 @@ function logout() {
         localStorage.clear();
         window.location.href = "login.html";
     });
+}
+
+function getAdminName() {
+    return localStorage.getItem("fullName") || "Admin";
+}
+
+function getToken() {
+    return null; // token is in HttpOnly cookie, not accessible via JS
 }
