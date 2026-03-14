@@ -1,20 +1,16 @@
-const BASE_URL = "https://malcom-isopentyl-malvina.ngrok-free.dev";
-
-function getToken() {
-    return localStorage.getItem("accessToken");
+// ✅ Use loggedIn flag instead of accessToken
+function isLoggedIn() {
+    return localStorage.getItem("loggedIn") === "true";
 }
 
+// ✅ Remove Authorization header — cookie is sent automatically
 async function apiFetch(endpoint, options = {}) {
-
-    const token = getToken();
-
     const response = await fetch(`${BASE_URL}${endpoint}`, {
         method: options.method || "GET",
-        credentials: "include",
+        credentials: "include",          // ← sends HttpOnly cookie automatically
         headers: {
             "Content-Type": "application/json",
             "ngrok-skip-browser-warning": "true",
-            ...(token ? { "Authorization": "Bearer " + token } : {}),
             ...(options.headers || {})
         },
         body: options.body ? JSON.stringify(options.body) : undefined
@@ -26,26 +22,21 @@ async function apiFetch(endpoint, options = {}) {
         window.location.href = "login.html";
         return;
     }
-
     if (!response.ok) {
         const text = await response.text();
         throw new Error(text || "API request failed");
     }
-
-    // ⭐ IMPORTANT FIX
     const text = await response.text();
     return text ? JSON.parse(text) : null;
 }
 
-function isLoggedIn() {
-    return !!localStorage.getItem("accessToken");
-}
-
+// ✅ Proper logout that clears the server-side cookie too
 function logout() {
-    localStorage.clear();
-    window.location.href = "login.html";
-}
-
-function getAdminName() {
-    return localStorage.getItem("fullName") || "Admin";
+    fetch(`${BASE_URL}/api/auth/logout`, {
+        method: "POST",
+        credentials: "include"
+    }).finally(() => {
+        localStorage.clear();
+        window.location.href = "login.html";
+    });
 }

@@ -91,8 +91,8 @@
             const email    = document.getElementById("email").value.trim();
             const password = document.getElementById("password").value.trim();
 
-            if (!email || !password)                              { showError("Please enter both email and password."); return; }
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))       { showError("Please enter a valid email address.");  return; }
+            if (!email || !password)                        { showError("Please enter both email and password."); return; }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError("Please enter a valid email address.");  return; }
 
             setLoading(true);
             try {
@@ -105,24 +105,27 @@
 
                 const data = await response.json();
 
-                if (!response.ok) { showError(data.message || "Invalid email or password."); return; }
+                if (!response.ok) {
+                    showError(data.message || "Invalid email or password.");
+                    return;
+                }
 
-                const role     = data.role        || "";
-                const username = data.username    || data.email || "Admin";
-                const token    = data.accessToken || "";
+                const role     = data.role     || "";
+                const username = data.username || data.email || "Admin";
 
-                if (!token) { showError("Login failed: no token received from server."); return; }
-
-                if (role === "ROLE_ADMIN" || role === "ADMIN" || role === "SUB_ADMIN") {
-                    localStorage.setItem("accessToken", token);
-                    localStorage.setItem("role",        role);
-                    localStorage.setItem("fullName",    username);
+                // ✅ Token is in HttpOnly cookie — no need to check data.accessToken
+                if (role === "ROLE_ADMIN" || role === "ADMIN" || role === "SUB_ADMIN" || role === "ROLE_SUB_ADMIN") {
+                    localStorage.setItem("loggedIn", "true");
+                    localStorage.setItem("role",     role);
+                    localStorage.setItem("fullName", username);
+                    localStorage.setItem("userId",   data.userId || "");
                     window.location.href = "dashboard.html";
                 } else {
                     showError("Access denied. Admins only.");
                 }
+
             } catch (err) {
-                console.error("Login failed:", err);
+                console.error("Login error:", err);
                 showError("Something went wrong. Please try again.");
             } finally {
                 setLoading(false);
