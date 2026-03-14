@@ -23,6 +23,32 @@
         .card { border-radius: 12px; box-shadow: 0 0 12px rgba(0,0,0,0.06); }
         .admin-name-btn { cursor: pointer; font-weight: 600; }
         .admin-name-btn:hover { text-decoration: underline; }
+
+        /* Toast */
+        #toastContainer {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .toast-msg {
+            padding: 12px 18px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+            animation: fadeInUp 0.3s ease;
+            min-width: 240px;
+        }
+        .toast-msg.success { background: #198754; }
+        .toast-msg.error   { background: #dc3545; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -36,6 +62,9 @@
         <a href="#" onclick="logout()"><i class="fa fa-sign-out-alt me-2"></i> Logout</a>
     </div>
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
 
     <div class="main-content">
         <nav class="navbar navbar-light bg-white shadow-sm mb-4 rounded">
@@ -142,6 +171,23 @@
             document.getElementById("overlay").classList.toggle("active");
         }
 
+        /* ── Toast helper ── */
+        function showToast(message, type = "success") {
+            const container = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+            toast.className = `toast-msg ${type}`;
+            toast.innerHTML = `<i class="bi bi-${type === "success" ? "check-circle" : "exclamation-triangle"} me-2"></i>${message}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+
+        /* ── Disable / re-enable a row's buttons during an action ── */
+        function setRowBusy(id, busy) {
+            document.querySelectorAll(`[data-cid="${id}"]`).forEach(btn => {
+                btn.disabled = busy;
+            });
+        }
+
         document.addEventListener("DOMContentLoaded", loadCandidates);
 
         async function loadCandidates() {
@@ -153,7 +199,7 @@
                 document.getElementById("blockedCandidates").textContent = data.filter(c => c.userStatus === "SUSPENDED" || c.userStatus === "BLOCKED").length;
 
                 if (!data.length) {
-                    tbody.innerHTML = `<tr><td colspan="7" class="text-center">No candidates found.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">No candidates found.</td></tr>`;
                     return;
                 }
 
@@ -171,16 +217,19 @@
                         <td>
                             <div class="d-flex gap-1 flex-wrap">
                                 <button class="btn btn-sm btn-outline-success"
+                                    data-cid="${c.id}"
                                     onclick="activateCandidate(${c.id})"
                                     ${isActive ? "disabled" : ""}>
                                     <i class="bi bi-check-circle me-1"></i>Activate
                                 </button>
                                 <button class="btn btn-sm btn-outline-warning"
+                                    data-cid="${c.id}"
                                     onclick="deactivateCandidate(${c.id})"
                                     ${!isActive ? "disabled" : ""}>
                                     <i class="bi bi-slash-circle me-1"></i>Deactivate
                                 </button>
                                 <button class="btn btn-sm btn-outline-danger"
+                                    data-cid="${c.id}"
                                     onclick="deleteCandidate(${c.id})">
                                     <i class="fa fa-trash"></i>
                                 </button>
@@ -190,35 +239,62 @@
                 }).join("");
 
             } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">Candidates API not available yet.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">Failed to load candidates.</td></tr>`;
                 ["totalCandidates", "activeCandidates", "blockedCandidates"].forEach(id => document.getElementById(id).textContent = "—");
             }
         }
 
+        /* ── FIX: send an empty JSON body with PATCH so the server
+               doesn't reject the request with 500 ── */
         async function activateCandidate(id) {
             if (!confirm("Activate this candidate?")) return;
+            setRowBusy(id, true);
             try {
-                await apiFetch(`/api/admin/candidates/${id}/activate`, { method: "PATCH" });
+                await apiFetch(`/api/admin/candidates/${id}/activate`, {
+                    method: "PATCH",
+                    body: {}          // ← empty body keeps Content-Type: application/json valid
+                });
+                showToast("Candidate activated successfully.");
                 loadCandidates();
-            } catch (err) { alert("Failed to activate candidate."); }
+            } catch (err) {
+                console.error("Activate error:", err);
+                showToast(err.message || "Failed to activate candidate.", "error");
+                setRowBusy(id, false);
+            }
         }
 
         async function deactivateCandidate(id) {
             if (!confirm("Deactivate this candidate?")) return;
+            setRowBusy(id, true);
             try {
-                await apiFetch(`/api/admin/candidates/${id}/deactivate`, { method: "PATCH" });
+                await apiFetch(`/api/admin/candidates/${id}/deactivate`, {
+                    method: "PATCH",
+                    body: {}          // ← same fix
+                });
+                showToast("Candidate deactivated successfully.");
                 loadCandidates();
-            } catch (err) { alert("Failed to deactivate candidate."); }
+            } catch (err) {
+                console.error("Deactivate error:", err);
+                showToast(err.message || "Failed to deactivate candidate.", "error");
+                setRowBusy(id, false);
+            }
         }
 
         async function deleteCandidate(id) {
             if (!confirm("Delete this candidate? This cannot be undone.")) return;
+            setRowBusy(id, true);
             try {
                 await apiFetch(`/api/admin/candidates/${id}`, { method: "DELETE" });
+                showToast("Candidate deleted.");
                 loadCandidates();
-            } catch (err) { alert("Failed to delete candidate."); }
+            } catch (err) {
+                console.error("Delete error:", err);
+                showToast(err.message || "Failed to delete candidate.", "error");
+                setRowBusy(id, false);
+            }
         }
 
+        /* ── Profile Modal ── */
         async function openProfileModal() {
             switchTab("editProfile", document.querySelector("#profileTabs .nav-link"));
             ["editProfileSuccess","editProfileError","changePwSuccess","changePwError"].forEach(id => document.getElementById(id).classList.add("d-none"));
@@ -248,12 +324,15 @@
         }
 
         async function saveProfile() {
-            const fullname = document.getElementById("p_fullname").value.trim();
-            const username = document.getElementById("p_username").value.trim();
-            const phone    = document.getElementById("p_phone").value.trim();
-            const successEl = document.getElementById("editProfileSuccess"); const errorEl = document.getElementById("editProfileError");
+            const fullname  = document.getElementById("p_fullname").value.trim();
+            const username  = document.getElementById("p_username").value.trim();
+            const phone     = document.getElementById("p_phone").value.trim();
+            const successEl = document.getElementById("editProfileSuccess");
+            const errorEl   = document.getElementById("editProfileError");
             successEl.classList.add("d-none"); errorEl.classList.add("d-none");
-            const btn = document.getElementById("saveProfileBtn"); const btnText = document.getElementById("saveProfileText"); const spinner = document.getElementById("saveProfileSpinner");
+            const btn = document.getElementById("saveProfileBtn");
+            const btnText = document.getElementById("saveProfileText");
+            const spinner = document.getElementById("saveProfileSpinner");
             btn.disabled = true; btnText.innerText = "Saving..."; spinner.classList.remove("d-none");
             try {
                 await apiFetch("/api/auth/update-profile", { method: "PUT", body: { fullname, username, phone: phone ? Number(phone) : null } });
@@ -261,27 +340,34 @@
                 document.getElementById("profileDisplayName").innerText = fullname || username;
                 document.getElementById("adminName").innerText = "Welcome, " + (fullname || username);
                 localStorage.setItem("fullName", fullname || username);
-            } catch (err) { errorEl.innerText = err.message || "Failed."; errorEl.classList.remove("d-none"); }
-            finally { btn.disabled = false; btnText.innerText = "Save Changes"; spinner.classList.add("d-none"); }
+            } catch (err) {
+                errorEl.innerText = err.message || "Failed to update profile.";
+                errorEl.classList.remove("d-none");
+            } finally { btn.disabled = false; btnText.innerText = "Save Changes"; spinner.classList.add("d-none"); }
         }
 
         async function changePassword() {
             const currentPw = document.getElementById("p_currentPw").value.trim();
             const newPw     = document.getElementById("p_newPw").value.trim();
             const confirmPw = document.getElementById("p_confirmPw").value.trim();
-            const successEl = document.getElementById("changePwSuccess"); const errorEl = document.getElementById("changePwError");
+            const successEl = document.getElementById("changePwSuccess");
+            const errorEl   = document.getElementById("changePwError");
             successEl.classList.add("d-none"); errorEl.classList.add("d-none");
             if (!currentPw || !newPw || !confirmPw) { errorEl.innerText = "Please fill all password fields."; errorEl.classList.remove("d-none"); return; }
             if (newPw !== confirmPw) { errorEl.innerText = "New passwords do not match."; errorEl.classList.remove("d-none"); return; }
             if (newPw.length < 6)   { errorEl.innerText = "New password must be at least 6 characters."; errorEl.classList.remove("d-none"); return; }
-            const btn = document.getElementById("changePwBtn"); const btnText = document.getElementById("changePwText"); const spinner = document.getElementById("changePwSpinner");
+            const btn = document.getElementById("changePwBtn");
+            const btnText = document.getElementById("changePwText");
+            const spinner = document.getElementById("changePwSpinner");
             btn.disabled = true; btnText.innerText = "Changing..."; spinner.classList.remove("d-none");
             try {
                 await apiFetch("/api/auth/change-password", { method: "POST", body: { currentPassword: currentPw, newPassword: newPw } });
                 successEl.classList.remove("d-none");
                 ["p_currentPw","p_newPw","p_confirmPw"].forEach(id => document.getElementById(id).value = "");
-            } catch (err) { errorEl.innerText = err.message || "Failed to change password."; errorEl.classList.remove("d-none"); }
-            finally { btn.disabled = false; btnText.innerText = "Change Password"; spinner.classList.add("d-none"); }
+            } catch (err) {
+                errorEl.innerText = err.message || "Failed to change password.";
+                errorEl.classList.remove("d-none");
+            } finally { btn.disabled = false; btnText.innerText = "Change Password"; spinner.classList.add("d-none"); }
         }
 
         function togglePw(inputId, btn) {
