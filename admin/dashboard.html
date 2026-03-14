@@ -7,13 +7,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="icon" type="image/png" href="/assets/images/tab-logo1.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         body { background-color: #f8f9fa; }
         .sidebar { height: 100vh; background: #0b2239; position: fixed; top: 0; left: 0; width: 16.666667%; z-index: 100; overflow-y: auto; }
         .sidebar a, .sidebar-link { color: #adb5bd; text-decoration: none; display: block; padding: 12px 20px; transition: background 0.2s; }
         .sidebar a:hover, .sidebar-link:hover, .sidebar a.active { background: #343a40; color: #fff; }
-        .card-box { border-left: 4px solid #18a99c; transition: transform 0.2s; }
-        .card-box:hover { transform: translateY(-3px); }
         @media (min-width: 768px) { .main-content { margin-left: 16.666667%; } }
         .top-navbar { background-color: #091d33; }
         .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.6); z-index: 9999; justify-content: center; align-items: center; }
@@ -23,6 +22,23 @@
         .admin-name-btn:hover { text-decoration: underline; }
         .nav-tabs .nav-link { color: #495057; }
         .nav-tabs .nav-link.active { color: #0b2239; font-weight: 600; }
+
+        /* Stat cards */
+        .stat-card { border-radius: 12px; border: none; box-shadow: 0 2px 12px rgba(0,0,0,0.07); transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-3px); }
+        .stat-card .icon-box { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .stat-card .stat-value { font-size: 28px; font-weight: 700; line-height: 1.1; }
+        .stat-card .stat-label { font-size: 13px; color: #6c757d; }
+        .stat-card .stat-sub { font-size: 12px; margin-top: 4px; }
+
+        /* Section header */
+        .section-title { font-size: 15px; font-weight: 600; color: #0b2239; margin-bottom: 0; }
+
+        /* Progress bars */
+        .progress { height: 8px; border-radius: 4px; }
+
+        /* Chart cards */
+        .chart-card { border-radius: 12px; border: none; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
     </style>
 </head>
 <body>
@@ -78,7 +94,10 @@
                 <main class="col-md-10 ms-sm-auto px-md-4 py-4 main-content">
 
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2>Dashboard</h2>
+                        <div>
+                            <h4 class="mb-0 fw-bold">Dashboard</h4>
+                            <small class="text-muted" id="dashboardDate"></small>
+                        </div>
                         <span class="admin-name-btn" onclick="openProfileModal()" id="adminName">Welcome, Admin</span>
                     </div>
 
@@ -87,49 +106,202 @@
                         <span id="errorMessage">Failed to load dashboard data.</span>
                     </div>
 
-                    <!-- Stats -->
-                    <div class="row g-4 mb-4">
-                        <div class="col-md-3 col-sm-6">
-                            <div class="card card-box shadow-sm"><div class="card-body">
-                                <h6 class="text-muted">Total Jobs</h6><h3 id="totalJobs">--</h3>
-                                <i class="bi bi-briefcase text-secondary"></i>
-                            </div></div>
+                    <!-- ── Row 1: Primary stat cards ── -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card stat-card p-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="stat-label">Total Jobs</div>
+                                        <div class="stat-value" id="totalJobs">--</div>
+                                        <div class="stat-sub text-success" id="activeJobsSub"></div>
+                                    </div>
+                                    <div class="icon-box bg-primary bg-opacity-10 text-primary"><i class="bi bi-briefcase-fill"></i></div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-3 col-sm-6">
-                            <div class="card card-box shadow-sm"><div class="card-body">
-                                <h6 class="text-muted">Employers</h6><h3 id="totalRecruiters">--</h3>
-                                <i class="bi bi-building text-secondary"></i>
-                            </div></div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card stat-card p-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="stat-label">Employers</div>
+                                        <div class="stat-value" id="totalRecruiters">--</div>
+                                        <div class="stat-sub text-success" id="activeEmployersSub"></div>
+                                    </div>
+                                    <div class="icon-box bg-success bg-opacity-10 text-success"><i class="bi bi-building-fill"></i></div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-3 col-sm-6">
-                            <div class="card card-box shadow-sm"><div class="card-body">
-                                <h6 class="text-muted">Candidates</h6><h3 id="totalUsers">--</h3>
-                                <i class="bi bi-people text-secondary"></i>
-                            </div></div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card stat-card p-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="stat-label">Candidates</div>
+                                        <div class="stat-value" id="totalUsers">--</div>
+                                        <div class="stat-sub text-success" id="activeCandidatesSub"></div>
+                                    </div>
+                                    <div class="icon-box bg-info bg-opacity-10 text-info"><i class="bi bi-people-fill"></i></div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-3 col-sm-6">
-                            <div class="card card-box shadow-sm"><div class="card-body">
-                                <h6 class="text-muted">Applications</h6><h3 id="totalApplications">--</h3>
-                                <i class="bi bi-file-earmark-text text-secondary"></i>
-                            </div></div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card stat-card p-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="stat-label">Total Applications</div>
+                                        <div class="stat-value" id="totalApplications">--</div>
+                                        <div class="stat-sub text-warning" id="pendingAppsSub"></div>
+                                    </div>
+                                    <div class="icon-box bg-warning bg-opacity-10 text-warning"><i class="bi bi-file-earmark-text-fill"></i></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Recent Applications -->
-                    <div class="card shadow-sm mb-4">
-                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Recent Applications</h5>
-                            <a href="applications.html" class="btn btn-sm btn-outline-primary">View All</a>
+                    <!-- ── Row 2: Derived stats ── -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card stat-card p-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="stat-label">Approval Rate</div>
+                                        <div class="stat-value text-success" id="approvalRate">--</div>
+                                        <div class="stat-sub text-muted">of all applications</div>
+                                    </div>
+                                    <div class="icon-box bg-success bg-opacity-10 text-success"><i class="bi bi-check-circle-fill"></i></div>
+                                </div>
+                                <div class="progress mt-2">
+                                    <div class="progress-bar bg-success" id="approvalBar" style="width:0%"></div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead class="table-dark">
-                                    <tr><th>#</th><th>Candidate</th><th>Job Title</th><th>Employer</th><th>Status</th><th>Date Applied</th></tr>
-                                </thead>
-                                <tbody id="applicationsTableBody">
-                                    <tr><td colspan="6" class="text-center text-muted">Loading...</td></tr>
-                                </tbody>
-                            </table>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card stat-card p-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="stat-label">Rejection Rate</div>
+                                        <div class="stat-value text-danger" id="rejectionRate">--</div>
+                                        <div class="stat-sub text-muted">of all applications</div>
+                                    </div>
+                                    <div class="icon-box bg-danger bg-opacity-10 text-danger"><i class="bi bi-x-circle-fill"></i></div>
+                                </div>
+                                <div class="progress mt-2">
+                                    <div class="progress-bar bg-danger" id="rejectionBar" style="width:0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card stat-card p-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="stat-label">Pending Applications</div>
+                                        <div class="stat-value text-warning" id="pendingApps">--</div>
+                                        <div class="stat-sub text-muted">awaiting review</div>
+                                    </div>
+                                    <div class="icon-box bg-warning bg-opacity-10 text-warning"><i class="bi bi-hourglass-split"></i></div>
+                                </div>
+                                <div class="progress mt-2">
+                                    <div class="progress-bar bg-warning" id="pendingBar" style="width:0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card stat-card p-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="stat-label">Active Employers</div>
+                                        <div class="stat-value text-primary" id="activeEmployers">--</div>
+                                        <div class="stat-sub text-muted" id="suspendedEmployersSub"></div>
+                                    </div>
+                                    <div class="icon-box bg-primary bg-opacity-10 text-primary"><i class="bi bi-building-check"></i></div>
+                                </div>
+                                <div class="progress mt-2">
+                                    <div class="progress-bar bg-primary" id="activeEmployersBar" style="width:0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Row 3: Charts ── -->
+                    <div class="row g-3 mb-4">
+                        <!-- Application Status Doughnut -->
+                        <div class="col-lg-4">
+                            <div class="card chart-card p-3 h-100">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="section-title">Application Status</span>
+                                </div>
+                                <canvas id="appStatusChart" height="220"></canvas>
+                            </div>
+                        </div>
+                        <!-- Candidate Status Bar -->
+                        <div class="col-lg-4">
+                            <div class="card chart-card p-3 h-100">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="section-title">Candidate Status</span>
+                                </div>
+                                <canvas id="candidateStatusChart" height="220"></canvas>
+                            </div>
+                        </div>
+                        <!-- Platform Overview Bar -->
+                        <div class="col-lg-4">
+                            <div class="card chart-card p-3 h-100">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="section-title">Platform Overview</span>
+                                </div>
+                                <canvas id="overviewChart" height="220"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Row 4: Employer breakdown + Recent Applications ── -->
+                    <div class="row g-3 mb-4">
+                        <!-- Employer Status Breakdown -->
+                        <div class="col-lg-4">
+                            <div class="card chart-card p-3 h-100">
+                                <span class="section-title mb-3 d-block">Employer Breakdown</span>
+                                <div id="employerBreakdown">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="text-muted small">Active</span>
+                                        <span class="fw-semibold text-success" id="eb_active">--</span>
+                                    </div>
+                                    <div class="progress mb-3"><div class="progress-bar bg-success" id="eb_activeBar" style="width:0%"></div></div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="text-muted small">Pending</span>
+                                        <span class="fw-semibold text-warning" id="eb_pending">--</span>
+                                    </div>
+                                    <div class="progress mb-3"><div class="progress-bar bg-warning" id="eb_pendingBar" style="width:0%"></div></div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="text-muted small">Suspended</span>
+                                        <span class="fw-semibold text-danger" id="eb_suspended">--</span>
+                                    </div>
+                                    <div class="progress mb-3"><div class="progress-bar bg-danger" id="eb_suspendedBar" style="width:0%"></div></div>
+                                    <hr class="my-2">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-muted small">Avg apps per employer</span>
+                                        <span class="fw-semibold" id="avgAppsPerEmployer">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Applications -->
+                        <div class="col-lg-8">
+                            <div class="card chart-card h-100">
+                                <div class="card-header bg-white d-flex justify-content-between align-items-center border-0 pt-3 px-3">
+                                    <span class="section-title">Recent Applications</span>
+                                    <a href="applications.html" class="btn btn-sm btn-outline-primary">View All</a>
+                                </div>
+                                <div class="card-body table-responsive pt-0">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr><th>#</th><th>Candidate</th><th>Job Title</th><th>Employer</th><th>Status</th><th>Date</th></tr>
+                                        </thead>
+                                        <tbody id="applicationsTableBody">
+                                            <tr><td colspan="6" class="text-center text-muted py-3">Loading...</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -147,8 +319,6 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-
-                    <!-- Profile Info (no avatar) -->
                     <div class="d-flex align-items-center gap-3 mb-4 p-3 bg-light rounded">
                         <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center"
                              style="width:60px;height:60px;font-size:24px;color:white;">
@@ -160,22 +330,18 @@
                             <span class="badge bg-success" id="profileDisplayRole">--</span>
                         </div>
                     </div>
-
-                    <!-- Tabs -->
                     <ul class="nav nav-tabs mb-3" id="profileTabs">
                         <li class="nav-item"><a class="nav-link active" href="#" onclick="switchTab('editProfile',this)"><i class="bi bi-pencil me-1"></i> Edit Profile</a></li>
                         <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('changePassword',this)"><i class="bi bi-lock me-1"></i> Change Password</a></li>
                     </ul>
-
-                    <!-- Tab: Edit Profile -->
                     <div id="tab_editProfile">
                         <div class="alert alert-success d-none" id="editProfileSuccess">Profile updated successfully!</div>
                         <div class="alert alert-danger d-none" id="editProfileError"></div>
                         <div class="row g-3">
-                            <div class="col-md-6"><label class="form-label fw-semibold">Full Name</label><input type="text" class="form-control" id="p_fullname" placeholder="Enter full name" /></div>
-                            <div class="col-md-6"><label class="form-label fw-semibold">Username</label><input type="text" class="form-control" id="p_username" placeholder="Enter username" /></div>
+                            <div class="col-md-6"><label class="form-label fw-semibold">Full Name</label><input type="text" class="form-control" id="p_fullname" /></div>
+                            <div class="col-md-6"><label class="form-label fw-semibold">Username</label><input type="text" class="form-control" id="p_username" /></div>
                             <div class="col-md-6"><label class="form-label fw-semibold">Email</label><input type="email" class="form-control" id="p_email" disabled /><small class="text-muted">Email cannot be changed</small></div>
-                            <div class="col-md-6"><label class="form-label fw-semibold">Phone</label><input type="number" class="form-control" id="p_phone" placeholder="Enter phone number" /></div>
+                            <div class="col-md-6"><label class="form-label fw-semibold">Phone</label><input type="number" class="form-control" id="p_phone" /></div>
                         </div>
                         <div class="mt-3 text-end">
                             <button class="btn btn-success" id="saveProfileBtn" onclick="saveProfile()">
@@ -184,33 +350,16 @@
                             </button>
                         </div>
                     </div>
-
-                    <!-- Tab: Change Password -->
                     <div id="tab_changePassword" style="display:none;">
                         <div class="alert alert-success d-none" id="changePwSuccess">Password changed successfully!</div>
                         <div class="alert alert-danger d-none" id="changePwError"></div>
                         <form onsubmit="return false;">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Current Password</label>
-                                <div class="input-group">
-                                    <input type="password" class="form-control" id="p_currentPw" placeholder="Enter current password" />
-                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePw('p_currentPw',this)"><i class="bi bi-eye"></i></button>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">New Password</label>
-                                <div class="input-group">
-                                    <input type="password" class="form-control" id="p_newPw" placeholder="Enter new password" />
-                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePw('p_newPw',this)"><i class="bi bi-eye"></i></button>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Confirm New Password</label>
-                                <div class="input-group">
-                                    <input type="password" class="form-control" id="p_confirmPw" placeholder="Confirm new password" />
-                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePw('p_confirmPw',this)"><i class="bi bi-eye"></i></button>
-                                </div>
-                            </div>
+                            <div class="mb-3"><label class="form-label fw-semibold">Current Password</label>
+                                <div class="input-group"><input type="password" class="form-control" id="p_currentPw" placeholder="Enter current password" /><button class="btn btn-outline-secondary" type="button" onclick="togglePw('p_currentPw',this)"><i class="bi bi-eye"></i></button></div></div>
+                            <div class="mb-3"><label class="form-label fw-semibold">New Password</label>
+                                <div class="input-group"><input type="password" class="form-control" id="p_newPw" placeholder="Enter new password" /><button class="btn btn-outline-secondary" type="button" onclick="togglePw('p_newPw',this)"><i class="bi bi-eye"></i></button></div></div>
+                            <div class="mb-3"><label class="form-label fw-semibold">Confirm New Password</label>
+                                <div class="input-group"><input type="password" class="form-control" id="p_confirmPw" placeholder="Confirm new password" /><button class="btn btn-outline-secondary" type="button" onclick="togglePw('p_confirmPw',this)"><i class="bi bi-eye"></i></button></div></div>
                             <div class="text-end">
                                 <button class="btn btn-warning" id="changePwBtn" type="button" onclick="changePassword()">
                                     <span id="changePwText">Change Password</span>
@@ -219,7 +368,6 @@
                             </div>
                         </form>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -230,39 +378,138 @@
     <script>
         if (!isLoggedIn()) window.location.href = "login.html";
         document.getElementById("adminName").innerText = "Welcome, " + getAdminName();
+        document.getElementById("dashboardDate").innerText = new Date().toLocaleDateString("en-IN", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
 
         function showSpinner() { document.getElementById("spinnerOverlay").classList.add("show"); }
         function hideSpinner() { document.getElementById("spinnerOverlay").classList.remove("show"); }
         function showError(msg) { document.getElementById("errorMessage").innerText = msg; document.getElementById("errorAlert").style.display = "block"; }
+
+        function pct(num, den) { return den === 0 ? 0 : Math.round((num / den) * 100); }
+        function pctStr(num, den) { return pct(num, den) + "%"; }
 
         function getStatusBadge(status) {
             const map = { "APPLIED": "primary", "APPROVED": "success", "REJECTED": "danger", "REVIEWED": "info", "PENDING": "warning" };
             return `<span class="badge bg-${map[status] || "secondary"}">${status}</span>`;
         }
 
-        function formatDate(dateStr) {
-            if (!dateStr) return "N/A";
-            return new Date(dateStr).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+        function formatDate(d) {
+            if (!d) return "N/A";
+            return new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+        }
+
+        let charts = {};
+
+        function buildChart(id, type, labels, datasets, options = {}) {
+            if (charts[id]) charts[id].destroy();
+            const ctx = document.getElementById(id).getContext("2d");
+            charts[id] = new Chart(ctx, {
+                type,
+                data: { labels, datasets },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } } },
+                    ...options
+                }
+            });
         }
 
         async function loadDashboard() {
             showSpinner();
             try {
-                const [jobs, recruiters, applications, users] = await Promise.all([
+                const [jobs, recruiters, applications, candidates] = await Promise.all([
                     apiFetch("/api/admin/jobs"),
                     apiFetch("/api/admin/recruiters"),
                     apiFetch("/api/admin/applications"),
                     apiFetch("/api/admin/candidates")
                 ]);
+
+                // ── Primary counts ──
                 document.getElementById("totalJobs").innerText         = jobs.length;
                 document.getElementById("totalRecruiters").innerText   = recruiters.length;
+                document.getElementById("totalUsers").innerText        = candidates.length;
                 document.getElementById("totalApplications").innerText = applications.length;
-                document.getElementById("totalUsers").innerText        = users.length;
+
+                // ── Candidate stats ──
+                const activeCandidates   = candidates.filter(c => c.userStatus === "ACTIVE").length;
+                const inactiveCandidates = candidates.length - activeCandidates;
+                document.getElementById("activeCandidatesSub").innerText =
+                    `${activeCandidates} active · ${inactiveCandidates} inactive`;
+
+                // ── Employer stats ──
+                const activeEmp    = recruiters.filter(r => r.recruiterStatus === "ACTIVE").length;
+                const pendingEmp   = recruiters.filter(r => r.recruiterStatus === "PENDING").length;
+                const suspendedEmp = recruiters.filter(r => r.recruiterStatus === "SUSPENDED").length;
+                document.getElementById("activeEmployersSub").innerText  = `${activeEmp} active · ${pendingEmp} pending`;
+                document.getElementById("activeEmployers").innerText     = activeEmp;
+                document.getElementById("suspendedEmployersSub").innerText = `${suspendedEmp} suspended · ${pendingEmp} pending`;
+                document.getElementById("activeEmployersBar").style.width = pctStr(activeEmp, recruiters.length);
+                document.getElementById("eb_active").innerText    = activeEmp;
+                document.getElementById("eb_pending").innerText   = pendingEmp;
+                document.getElementById("eb_suspended").innerText = suspendedEmp;
+                document.getElementById("eb_activeBar").style.width    = pctStr(activeEmp, recruiters.length);
+                document.getElementById("eb_pendingBar").style.width   = pctStr(pendingEmp, recruiters.length);
+                document.getElementById("eb_suspendedBar").style.width = pctStr(suspendedEmp, recruiters.length);
+                document.getElementById("avgAppsPerEmployer").innerText =
+                    recruiters.length ? (applications.length / recruiters.length).toFixed(1) : "0";
+
+                // ── Application stats ──
+                const approved = applications.filter(a => a.applicationStatus === "APPROVED").length;
+                const rejected = applications.filter(a => a.applicationStatus === "REJECTED").length;
+                const pending  = applications.filter(a => ["APPLIED","PENDING"].includes(a.applicationStatus)).length;
+                const reviewed = applications.filter(a => a.applicationStatus === "REVIEWED").length;
+                const total    = applications.length;
+
+                document.getElementById("approvalRate").innerText  = pctStr(approved, total);
+                document.getElementById("rejectionRate").innerText = pctStr(rejected, total);
+                document.getElementById("pendingApps").innerText   = pending;
+                document.getElementById("approvalBar").style.width  = pctStr(approved, total);
+                document.getElementById("rejectionBar").style.width = pctStr(rejected, total);
+                document.getElementById("pendingBar").style.width   = pctStr(pending, total);
+                document.getElementById("activeJobsSub").innerText  = `${jobs.length} listed`;
+                document.getElementById("pendingAppsSub").innerText = `${pending} pending review`;
+
+                // ── Chart 1: Application Status Doughnut ──
+                buildChart("appStatusChart", "doughnut",
+                    ["Approved", "Rejected", "Pending", "Reviewed"],
+                    [{
+                        data: [approved, rejected, pending, reviewed],
+                        backgroundColor: ["#198754","#dc3545","#ffc107","#0dcaf0"],
+                        borderWidth: 2
+                    }]
+                );
+
+                // ── Chart 2: Candidate Status Bar ──
+                buildChart("candidateStatusChart", "bar",
+                    ["Active", "Inactive / Blocked"],
+                    [{
+                        label: "Candidates",
+                        data: [activeCandidates, inactiveCandidates],
+                        backgroundColor: ["#0d6efd","#adb5bd"],
+                        borderRadius: 6,
+                        borderSkipped: false
+                    }],
+                    { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+                );
+
+                // ── Chart 3: Platform Overview Bar ──
+                buildChart("overviewChart", "bar",
+                    ["Jobs", "Employers", "Candidates", "Applications"],
+                    [{
+                        label: "Count",
+                        data: [jobs.length, recruiters.length, candidates.length, applications.length],
+                        backgroundColor: ["#0d6efd","#198754","#0dcaf0","#ffc107"],
+                        borderRadius: 6,
+                        borderSkipped: false
+                    }],
+                    { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+                );
+
+                // ── Recent Applications Table ──
                 const tbody = document.getElementById("applicationsTableBody");
                 if (!applications.length) {
-                    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No applications found</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-3">No applications found</td></tr>`;
                 } else {
-                    tbody.innerHTML = applications.slice(0, 5).map((app, i) => `
+                    tbody.innerHTML = applications.slice(0, 6).map((app, i) => `
                         <tr>
                             <td>${i + 1}</td>
                             <td>${app.candidateName ?? "N/A"}</td>
@@ -272,11 +519,14 @@
                             <td>${formatDate(app.appliedAt)}</td>
                         </tr>`).join("");
                 }
+
             } catch (err) {
+                console.error(err);
                 showError("Failed to load dashboard stats.");
             } finally { hideSpinner(); }
         }
 
+        // ── Profile Modal ──
         async function openProfileModal() {
             switchTab("editProfile", document.querySelector("#profileTabs .nav-link"));
             ["editProfileSuccess","editProfileError","changePwSuccess","changePwError"].forEach(id => document.getElementById(id).classList.add("d-none"));
@@ -309,8 +559,7 @@
             const fullname = document.getElementById("p_fullname").value.trim();
             const username = document.getElementById("p_username").value.trim();
             const phone    = document.getElementById("p_phone").value.trim();
-            const successEl = document.getElementById("editProfileSuccess");
-            const errorEl   = document.getElementById("editProfileError");
+            const successEl = document.getElementById("editProfileSuccess"); const errorEl = document.getElementById("editProfileError");
             successEl.classList.add("d-none"); errorEl.classList.add("d-none");
             const btn = document.getElementById("saveProfileBtn"); const btnText = document.getElementById("saveProfileText"); const spinner = document.getElementById("saveProfileSpinner");
             btn.disabled = true; btnText.innerText = "Saving..."; spinner.classList.remove("d-none");
@@ -320,7 +569,7 @@
                 document.getElementById("profileDisplayName").innerText = fullname || username;
                 document.getElementById("adminName").innerText = "Welcome, " + (fullname || username);
                 localStorage.setItem("fullName", fullname || username);
-            } catch (err) { errorEl.innerText = err.message || "Failed to update profile."; errorEl.classList.remove("d-none"); }
+            } catch (err) { errorEl.innerText = err.message || "Failed."; errorEl.classList.remove("d-none"); }
             finally { btn.disabled = false; btnText.innerText = "Save Changes"; spinner.classList.add("d-none"); }
         }
 
@@ -328,8 +577,7 @@
             const currentPw = document.getElementById("p_currentPw").value.trim();
             const newPw     = document.getElementById("p_newPw").value.trim();
             const confirmPw = document.getElementById("p_confirmPw").value.trim();
-            const successEl = document.getElementById("changePwSuccess");
-            const errorEl   = document.getElementById("changePwError");
+            const successEl = document.getElementById("changePwSuccess"); const errorEl = document.getElementById("changePwError");
             successEl.classList.add("d-none"); errorEl.classList.add("d-none");
             if (!currentPw || !newPw || !confirmPw) { errorEl.innerText = "Please fill all password fields."; errorEl.classList.remove("d-none"); return; }
             if (newPw !== confirmPw) { errorEl.innerText = "New passwords do not match."; errorEl.classList.remove("d-none"); return; }
