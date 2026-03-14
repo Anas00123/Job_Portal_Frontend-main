@@ -333,7 +333,7 @@
                 document.getElementById("approvedCount").textContent =
                     data.filter(a => a.applicationStatus === "APPROVED").length;
                 document.getElementById("pendingCount").textContent =
-                    data.filter(a => ["APPLIED", "PENDING"].includes(a.applicationStatus)).length;
+                    data.filter(a => ["APPLIED"].includes(a.applicationStatus)).length;
 
                 if (!data.length) {
                     tbody.innerHTML = `<tr>
