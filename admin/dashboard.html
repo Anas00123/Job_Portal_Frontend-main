@@ -74,7 +74,7 @@
                 <main class="col-md-10 ms-sm-auto px-md-4 py-4 main-content">
 
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2>Dashboard</h2>
+                        <h2 id="pageTitle">Dashboard</h2>
                         <div class="d-flex align-items-center gap-2">
                             <span id="adminName">Welcome, Admin</span>
                             <img src="/assets/images/testimonial3.jfif" class="rounded-circle" width="40" height="40">
@@ -127,7 +127,7 @@
                     </div>
 
                     <!-- Recent Applications -->
-                    <div class="card shadow-sm mb-4">
+                    <div class="card shadow-sm mb-4" id="recentApplicationsSection">
                         <div class="card-header bg-white d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">Recent Applications</h5>
                             <a href="applications.html" class="btn btn-sm btn-outline-primary">View All</a>
@@ -151,9 +151,14 @@
                     <div class="card shadow-sm" id="subAdminSection" style="display:none;">
                         <div class="card-header bg-white d-flex justify-content-between align-items-center">
                             <h5 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Sub Admins</h5>
-                            <button class="btn btn-sm btn-success" onclick="openCreateSubAdminModal()">
-                                <i class="bi bi-plus-circle me-1"></i> Add Sub Admin
-                            </button>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-secondary" onclick="closeSubAdminSection()">
+                                    <i class="bi bi-arrow-left me-1"></i> Back
+                                </button>
+                                <button class="btn btn-sm btn-success" onclick="openCreateSubAdminModal()">
+                                    <i class="bi bi-plus-circle me-1"></i> Add Sub Admin
+                                </button>
+                            </div>
                         </div>
                         <div class="card-body table-responsive">
                             <table class="table table-striped table-hover">
@@ -329,10 +334,17 @@
 
         // ── Sub Admin Section ──
         function openSubAdminSection() {
-            const section = document.getElementById("subAdminSection");
-            section.style.display = "block";
-            section.scrollIntoView({ behavior: "smooth" });
+            document.getElementById("recentApplicationsSection").style.display = "none";
+            document.getElementById("subAdminSection").style.display           = "block";
+            document.getElementById("pageTitle").innerText                     = "Sub Admins";
+            window.scrollTo({ top: 0, behavior: "smooth" });
             loadSubAdmins();
+        }
+
+        function closeSubAdminSection() {
+            document.getElementById("subAdminSection").style.display           = "none";
+            document.getElementById("recentApplicationsSection").style.display = "block";
+            document.getElementById("pageTitle").innerText                     = "Dashboard";
         }
 
         async function loadSubAdmins() {
@@ -475,7 +487,7 @@
         async function activateSubAdmin(id) {
             if (!confirm("Activate this sub-admin?")) return;
             try {
-                await apiFetch(`/api/admin/sub-admins/${id}/activate`, { method: "PATCH", body: {} });
+                await apiFetch(`/api/admin/sub-admins/${id}/activate`, { method: "PATCH", body: { status: "ACTIVE" } });
                 loadSubAdmins();
             } catch (err) { alert("Failed to activate sub-admin."); }
         }
@@ -483,7 +495,7 @@
         async function deactivateSubAdmin(id) {
             if (!confirm("Deactivate this sub-admin?")) return;
             try {
-                await apiFetch(`/api/admin/sub-admins/${id}/deactivate`, { method: "PATCH", body: {} });
+                await apiFetch(`/api/admin/sub-admins/${id}/deactivate`, { method: "PATCH", body: { status: "INACTIVE" } });
                 loadSubAdmins();
             } catch (err) { alert("Failed to deactivate sub-admin."); }
         }
