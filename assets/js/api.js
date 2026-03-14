@@ -5,6 +5,7 @@ function getToken() {
 }
 
 async function apiFetch(endpoint, options = {}) {
+
     const token = getToken();
 
     const response = await fetch(`${BASE_URL}${endpoint}`, {
@@ -31,7 +32,9 @@ async function apiFetch(endpoint, options = {}) {
         throw new Error(text || "API request failed");
     }
 
-    return response.json();
+    // ⭐ IMPORTANT FIX
+    const text = await response.text();
+    return text ? JSON.parse(text) : null;
 }
 
 function isLoggedIn() {
