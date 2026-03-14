@@ -377,7 +377,13 @@ if (sessionStorage.getItem("openSubAdmins") === "1") {
         }
 
 
-        
+        // Auto-open sub-admin section if coming from another page
+if (sessionStorage.getItem("openSubAdmins") === "1") {
+    sessionStorage.removeItem("openSubAdmins");
+    window.addEventListener("load", openSubAdminSection);
+}
+
+loadDashboard();
         // ── Load dashboard ──
         async function loadDashboard() {
             showSpinner();
