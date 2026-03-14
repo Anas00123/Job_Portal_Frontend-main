@@ -202,7 +202,7 @@
                             <th>Name</th>
                             <th>Email</th>
                             <th>Phone</th>
-                            <th>Location</th>
+                            <!-- <th>Location</th> -->
                             <th>Status</th>
                             <th>Registered</th>
                             <th>Action</th>
@@ -330,7 +330,8 @@
                     const date = c.createdAt ? new Date(c.createdAt).toLocaleDateString("en-IN") : "N/A";
                     tbody.innerHTML += `<tr>
                         <td>${i + 1}</td><td>${c.fullName ?? "N/A"}</td><td>${c.email ?? "N/A"}</td>
-                        <td>${c.phone ?? "N/A"}</td><td>${c.city ?? "N/A"}</td>
+                        <td>${c.phone ?? "N/A"}</td>
+                      
                         <td><span class="badge ${statusCls}">${c.userStatus ?? "N/A"}</span></td>
                         <td>${date}</td>
                         <td><button class="btn btn-sm btn-info"><i class="fa fa-eye"></i></button>
