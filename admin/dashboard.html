@@ -715,7 +715,7 @@
 
                 document.getElementById("approvalRate").innerText   = pctStr(approved, total);
                 document.getElementById("rejectionRate").innerText  = pctStr(rejected, total);
-                document.getElementById("pendingApps").innerText    = pctStr(pending, total);
+                document.getElementById("pendingApps").innerText    = pending;
                 document.getElementById("approvalBar").style.width  = pctStr(approved, total);
                 document.getElementById("rejectionBar").style.width = pctStr(rejected, total);
                 document.getElementById("pendingBar").style.width   = pctStr(pending, total);
