@@ -1,20 +1,16 @@
 const BASE_URL = "https://malcom-isopentyl-malvina.ngrok-free.dev";
 
-/* ── Token helpers ── */
-function getToken()     { return localStorage.getItem("accessToken"); }
-function isLoggedIn()   { return !!localStorage.getItem("accessToken"); }
-function getAdminName() { return localStorage.getItem("fullName") || "Admin"; }
+function isLoggedIn() {
+    return localStorage.getItem("loggedIn") === "true";
+}
 
-/* ── All API calls — sends BOTH cookie and Bearer header ── */
 async function apiFetch(endpoint, options = {}) {
-    const token = getToken();
     const response = await fetch(`${BASE_URL}${endpoint}`, {
         method: options.method || "GET",
         credentials: "include",
         headers: {
             "Content-Type": "application/json",
             "ngrok-skip-browser-warning": "true",
-            ...(token ? { "Authorization": "Bearer " + token } : {}),
             ...(options.headers || {})
         },
         body: options.body ? JSON.stringify(options.body) : undefined
@@ -34,17 +30,20 @@ async function apiFetch(endpoint, options = {}) {
     return text ? JSON.parse(text) : null;
 }
 
-/* ── Logout — clears server cookie + localStorage ── */
 function logout() {
     fetch(`${BASE_URL}/api/auth/logout`, {
         method: "POST",
-        credentials: "include",
-        headers: {
-            "ngrok-skip-browser-warning": "true",
-            ...(getToken() ? { "Authorization": "Bearer " + getToken() } : {})
-        }
+        credentials: "include"
     }).finally(() => {
         localStorage.clear();
         window.location.href = "login.html";
     });
+}
+
+function getAdminName() {
+    return localStorage.getItem("fullName") || "Admin";
+}
+
+function getToken() {
+    return null; // token is in HttpOnly cookie, not accessible via JS
 }
