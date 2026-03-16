@@ -119,6 +119,7 @@
                     localStorage.setItem("role",     role);
                     localStorage.setItem("fullName", username);
                     localStorage.setItem("userId",   data.userId || "");
+                    localStorage.setItem("accessToken", data.accessToken);
                     window.location.href = "dashboard.html";
                 } else {
                     showError("Access denied. Admins only.");
